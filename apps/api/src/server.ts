@@ -13,6 +13,10 @@ import { PrismaBookRepository } from "./modules/books/repositories/prismaBookRep
 import { createCategoriesRouter } from "./modules/categories/categories.routes.js";
 import { CategoriesService } from "./modules/categories/categories.service.js";
 import { PrismaCategoryRepository } from "./modules/categories/repositories/prismaCategoryRepository.js";
+import { createStatsRouter } from "./modules/stats/stats.routes.js";
+import { StatsService } from "./modules/stats/stats.service.js";
+import { ImageStorage } from "./modules/uploads/imageStorage.js";
+import { createUploadsRouter } from "./modules/uploads/uploads.routes.js";
 
 const authRepository = new PrismaAuthRepository(prisma);
 const authService = new AuthService(authRepository, {
@@ -24,13 +28,18 @@ const booksService = new BooksService(bookRepository);
 const categoryRepository = new PrismaCategoryRepository(prisma);
 const categoriesService = new CategoriesService(categoryRepository);
 const billRepository = new PrismaBillRepository(prisma);
-const billsService = new BillsService(billRepository, bookRepository, categoryRepository);
+const imageStorage = new ImageStorage(env.UPLOAD_DIR);
+const billsService = new BillsService(billRepository, bookRepository, categoryRepository, imageStorage);
+const statsService = new StatsService(billRepository, bookRepository, categoryRepository);
 
 const app = createApp({
   authRouter: createAuthRouter(authService),
   booksRouter: createBooksRouter(authService, booksService),
   categoriesRouter: createCategoriesRouter(authService, categoriesService),
-  billsRouter: createBillsRouter(authService, billsService)
+  billsRouter: createBillsRouter(authService, billsService),
+  uploadsRouter: createUploadsRouter(authService, imageStorage),
+  statsRouter: createStatsRouter(authService, statsService),
+  uploadsDir: env.UPLOAD_DIR
 });
 
 app.listen(env.PORT, () => {

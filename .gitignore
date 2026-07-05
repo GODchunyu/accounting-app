@@ -20,7 +20,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Runtime uploads
-uploads/
+/uploads/
 apps/api/uploads/
 
 # OS / editor

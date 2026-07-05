@@ -7,6 +7,9 @@ export interface AppDependencies {
   booksRouter?: Router;
   categoriesRouter?: Router;
   billsRouter?: Router;
+  uploadsRouter?: Router;
+  statsRouter?: Router;
+  uploadsDir?: string;
 }
 
 export function createApp(dependencies: AppDependencies = {}) {
@@ -18,6 +21,10 @@ export function createApp(dependencies: AppDependencies = {}) {
   app.get("/api/health", (_request, response) => {
     response.json({ ok: true, service: "accounting-api" });
   });
+
+  if (dependencies.uploadsDir) {
+    app.use("/uploads", express.static(dependencies.uploadsDir));
+  }
 
   if (dependencies.authRouter) {
     app.use("/api", dependencies.authRouter);
@@ -33,6 +40,14 @@ export function createApp(dependencies: AppDependencies = {}) {
 
   if (dependencies.billsRouter) {
     app.use("/api", dependencies.billsRouter);
+  }
+
+  if (dependencies.uploadsRouter) {
+    app.use("/api", dependencies.uploadsRouter);
+  }
+
+  if (dependencies.statsRouter) {
+    app.use("/api", dependencies.statsRouter);
   }
 
   app.use(errorMiddleware);

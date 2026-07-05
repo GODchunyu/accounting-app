@@ -2,6 +2,7 @@ import type { BillType } from "@accounting-app/shared";
 import { AppError } from "../../errors/AppError.js";
 import type { BookRepository } from "../books/repositories/bookRepository.js";
 import type { CategoryRepository } from "../categories/repositories/categoryRepository.js";
+import type { ImageStorage } from "../uploads/imageStorage.js";
 import type { BillQuery, BillRecord, BillRepository } from "./repositories/billRepository.js";
 
 const billTypes = new Set<BillType>(["expense", "income"]);
@@ -35,7 +36,8 @@ export class BillsService {
   constructor(
     private readonly billRepository: BillRepository,
     private readonly bookRepository: BookRepository,
-    private readonly categoryRepository: CategoryRepository
+    private readonly categoryRepository: CategoryRepository,
+    private readonly imageStorage?: Pick<ImageStorage, "deleteByUrl">
   ) {}
 
   async listBills(query: BillQuery): Promise<BillRecord[]> {
@@ -102,7 +104,7 @@ export class BillsService {
       type: next.type
     });
 
-    return this.billRepository.updateBill({
+    const updated = await this.billRepository.updateBill({
       billId: input.billId,
       bookId: input.bookId,
       categoryId: input.categoryId,
@@ -112,11 +114,19 @@ export class BillsService {
       imageUrl: input.imageUrl === undefined ? undefined : this.normalizeOptionalString(input.imageUrl),
       happenedAt: input.happenedAt === undefined ? undefined : this.normalizeDate(input.happenedAt)
     });
+
+    const nextImageUrl = input.imageUrl === undefined ? existing.imageUrl : updated.imageUrl;
+    if (existing.imageUrl && existing.imageUrl !== nextImageUrl) {
+      await this.imageStorage?.deleteByUrl(existing.imageUrl);
+    }
+
+    return updated;
   }
 
   async deleteBill(userId: string, billId: string): Promise<void> {
-    await this.getBill(userId, billId);
+    const bill = await this.getBill(userId, billId);
     await this.billRepository.deleteBill(billId);
+    await this.imageStorage?.deleteByUrl(bill.imageUrl);
   }
 
   private async assertBillRelations(input: { userId: string; bookId: string; categoryId: string; type: BillType }) {
