@@ -67,6 +67,12 @@ export async function apiPatch<T>(path: string, body: unknown) {
   });
 }
 
+export async function apiDelete(path: string) {
+  return apiRequest<void>(path, {
+    method: "DELETE"
+  });
+}
+
 export async function uploadBillImage(file: File) {
   const formData = new FormData();
   formData.append("image", file);
@@ -103,6 +109,10 @@ async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   if (response.status === 401) {
     clearToken();
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   if (!response.ok || !payload.ok || !payload.data) {

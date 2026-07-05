@@ -1,6 +1,6 @@
 # Accounting App
 
-个人记账 APP 的 H5 高保真原型，采用 React + Vite 前端、Express + Prisma 后端、PostgreSQL 数据库和 Docker Compose 部署方案。
+个人记账 App 的 H5 高保真原型与 Docker 化后端。当前版本聚焦第一版核心闭环：注册登录、账本、分类、记账、明细、图表统计、图片凭证和我的页管理。
 
 ## 文档入口
 
@@ -8,12 +8,13 @@
 - [CLAUDE.md](CLAUDE.md)：项目唯一执行规则。
 - [docs/PRD.md](docs/PRD.md)：产品需求文档。
 - [docs/ROADMAP.md](docs/ROADMAP.md)：路线图、任务追踪和 ADR。
+- [docs/DELIVERY.md](docs/DELIVERY.md)：交付检查、安全自查和已知限制。
 
 ## 项目结构
 
 ```text
 apps/
-  web/      React + Vite H5
+  web/      React + Vite H5 前端
   api/      Express + Prisma API
 packages/
   shared/   共享类型、默认分类和常量
@@ -22,34 +23,50 @@ docs/       权威项目文档
 
 ## 本地开发
 
-复制环境变量模板：
+1. 复制环境变量模板：
 
 ```bash
 cp .env.example .env
 ```
 
-安装依赖：
+2. 安装依赖：
 
 ```bash
 pnpm install
 ```
 
-启动数据库和 API 容器：
-
-```bash
-docker compose up -d
-```
-
-生成 Prisma Client：
+3. 生成 Prisma Client：
 
 ```bash
 pnpm db:generate
 ```
 
-启动开发服务：
+4. 启动开发服务：
 
 ```bash
 pnpm dev
+```
+
+前端默认使用 `VITE_API_BASE_URL=/api`。如前后端分开端口运行，可在 `apps/web/.env` 中设置：
+
+```text
+VITE_API_BASE_URL=http://localhost:3000/api
+```
+
+## Docker
+
+项目已提供 PostgreSQL 与 API 的 Docker Compose 配置：
+
+```bash
+docker compose up -d
+```
+
+当前开发机器未安装 Docker Desktop，因此真实容器冒烟和真实 PostgreSQL 迁移尚未在本机执行。安装 Docker 后建议补跑：
+
+```bash
+docker compose up -d
+pnpm db:migrate
+pnpm test
 ```
 
 ## 质量门禁
@@ -59,9 +76,11 @@ pnpm lint
 pnpm typecheck
 pnpm test
 pnpm build
+pnpm --filter @accounting-app/api db:generate
 ```
 
-## 当前说明
+## 当前能力
 
-本仓库当前处于 Phase 0 工程初始化阶段。若本机没有 Docker，`docker compose up -d` 暂无法运行，但配置文件已就位。
-
+- 后端：认证、账本、分类、账单、图片上传、月度统计、分类排行、统一错误响应。
+- 前端：登录注册、四页底部导航、明细页、记账页、图表页、我的页、图片凭证选择/上传、危险操作二次确认。
+- 不包含：预算、发现页、VIP、积分、徽章、家庭账单、资产、发票、优惠券、房贷、导入导出、OCR、支付方式、标签、周期账单等已取消功能。

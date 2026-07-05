@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { clearToken, fetchMe, getStoredToken, login, register, storeToken, type AuthUser } from "../services/auth";
 import {
+  apiDelete,
   apiGet,
   apiPatch,
   apiPost,
@@ -70,25 +71,18 @@ export function App() {
 
   useEffect(() => {
     const token = getStoredToken();
-    if (!token) {
-      return;
-    }
+    if (!token) return;
 
     fetchMe(token)
       .then((nextUser) => {
         setUser(nextUser);
         return loadWorkspace();
       })
-      .catch(() => {
-        clearToken();
-      });
+      .catch(() => clearToken());
   }, []);
 
   useEffect(() => {
-    if (!user || !currentBookId) {
-      return;
-    }
-    void loadBookData();
+    if (user && currentBookId) void loadBookData();
   }, [user, currentBookId, month, chartType]);
 
   useEffect(() => {
@@ -101,7 +95,6 @@ export function App() {
     event.preventDefault();
     setError("");
     setIsSubmitting(true);
-
     try {
       const result = mode === "login" ? await login(username, password) : await register(username, password);
       storeToken(result.token);
@@ -189,10 +182,7 @@ export function App() {
 
   async function handleCreateBook(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!newBookName.trim()) {
-      return;
-    }
-
+    if (!newBookName.trim()) return;
     const payload = await apiPost<{ book: Book }>("/books", { name: newBookName });
     setBooks((previous) => [...previous, payload.book]);
     setCurrentBookId(payload.book.id);
@@ -201,10 +191,7 @@ export function App() {
 
   async function handleCreateCategory(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!newCategoryName.trim()) {
-      return;
-    }
-
+    if (!newCategoryName.trim()) return;
     const payload = await apiPost<{ category: Category }>("/categories", {
       type: recordType,
       name: newCategoryName,
@@ -215,8 +202,23 @@ export function App() {
   }
 
   async function handleDisableCategory(categoryId: string) {
+    if (!window.confirm("确认停用这个分类？")) return;
     const payload = await apiPatch<{ category: Category }>(`/categories/${categoryId}/disable`, {});
     setCategories((previous) => previous.map((item) => (item.id === categoryId ? payload.category : item)));
+  }
+
+  async function handleDeleteBill(billId: string) {
+    if (!window.confirm("确认删除这笔账单？")) return;
+    await apiDelete(`/bills/${billId}`);
+    await loadBookData();
+  }
+
+  async function handleDeleteBook(bookId: string) {
+    if (!window.confirm("确认删除这个账本？账本下的账单和图片凭证也会删除。")) return;
+    await apiDelete(`/books/${bookId}`);
+    const remainingBooks = books.filter((book) => book.id !== bookId);
+    setBooks(remainingBooks);
+    setCurrentBookId((previous) => (previous === bookId ? remainingBooks[0]?.id ?? "" : previous));
   }
 
   function handleLogout() {
@@ -273,16 +275,12 @@ export function App() {
             categories={categories}
             month={month}
             monthlyStats={monthlyStats}
+            onDeleteBill={handleDeleteBill}
             setMonth={setMonth}
           />
         ) : null}
         {activeTab === "chart" ? (
-          <ChartPage
-            chartType={chartType}
-            monthlyStats={monthlyStats}
-            ranks={categoryRanks}
-            setChartType={setChartType}
-          />
+          <ChartPage chartType={chartType} monthlyStats={monthlyStats} ranks={categoryRanks} setChartType={setChartType} />
         ) : null}
         {activeTab === "record" ? (
           <RecordPage
@@ -293,7 +291,6 @@ export function App() {
             recordCategoryId={recordCategoryId}
             recordType={recordType}
             remark={remark}
-            voucherFile={voucherFile}
             setAmount={setAmount}
             setHappenedAt={setHappenedAt}
             setRecordCategoryId={setRecordCategoryId}
@@ -303,6 +300,7 @@ export function App() {
             }}
             setRemark={setRemark}
             setVoucherFile={setVoucherFile}
+            voucherFile={voucherFile}
             onSubmit={handleCreateBill}
           />
         ) : null}
@@ -316,6 +314,7 @@ export function App() {
             user={user}
             onCreateBook={handleCreateBook}
             onCreateCategory={handleCreateCategory}
+            onDeleteBook={handleDeleteBook}
             onDisableCategory={handleDisableCategory}
             onLogout={handleLogout}
             setNewBookName={setNewBookName}
@@ -323,24 +322,7 @@ export function App() {
           />
         ) : null}
       </section>
-
-      <nav className="tab-bar" aria-label="主导航">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <button
-              className={tab.primary ? "tab-item tab-item-primary" : "tab-item"}
-              key={tab.key}
-              type="button"
-              aria-current={activeTab === tab.key ? "page" : undefined}
-              onClick={() => setActiveTab(tab.key)}
-            >
-              <Icon aria-hidden="true" size={tab.primary ? 30 : 22} strokeWidth={2.2} />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </nav>
+      <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
     </main>
   );
 }
@@ -405,11 +387,34 @@ function AuthPanel(props: {
   );
 }
 
+function TabBar({ activeTab, setActiveTab }: { activeTab: TabKey; setActiveTab: (tab: TabKey) => void }) {
+  return (
+    <nav className="tab-bar" aria-label="主导航">
+      {tabs.map((tab) => {
+        const Icon = tab.icon;
+        return (
+          <button
+            className={tab.primary ? "tab-item tab-item-primary" : "tab-item"}
+            key={tab.key}
+            type="button"
+            aria-current={activeTab === tab.key ? "page" : undefined}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            <Icon aria-hidden="true" size={tab.primary ? 30 : 22} strokeWidth={2.2} />
+            <span>{tab.label}</span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
 function DetailPage(props: {
   bills: Bill[];
   categories: Category[];
   month: string;
   monthlyStats: MonthlyStats | null;
+  onDeleteBill: (billId: string) => void;
   setMonth: (month: string) => void;
 }) {
   const categoryById = new Map(props.categories.map((category) => [category.id, category]));
@@ -454,6 +459,9 @@ function DetailPage(props: {
                     {bill.type === "expense" ? "-" : "+"}
                     {bill.amount}
                   </span>
+                  <button className="danger-link" type="button" onClick={() => props.onDeleteBill(bill.id)}>
+                    删除
+                  </button>
                 </article>
               );
             })}
@@ -607,6 +615,7 @@ function ProfilePage(props: {
   user: AuthUser;
   onCreateBook: (event: FormEvent<HTMLFormElement>) => void;
   onCreateCategory: (event: FormEvent<HTMLFormElement>) => void;
+  onDeleteBook: (bookId: string) => void;
   onDisableCategory: (categoryId: string) => void;
   onLogout: () => void;
   setNewBookName: (value: string) => void;
@@ -630,7 +639,9 @@ function ProfilePage(props: {
       </form>
       <div className="plain-list">
         {props.books.map((book) => (
-          <span key={book.id}>{book.name}</span>
+          <button key={book.id} type="button" onClick={() => props.onDeleteBook(book.id)}>
+            {book.name}
+          </button>
         ))}
       </div>
       <form className="inline-form" onSubmit={props.onCreateCategory}>

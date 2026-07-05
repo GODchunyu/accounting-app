@@ -20,6 +20,7 @@
 body {
   margin: 0;
   min-width: 320px;
+  overflow-x: hidden;
 }
 
 button,
@@ -73,10 +74,12 @@ button {
   border-radius: 0 0 8px 8px;
   background: var(--brand-yellow);
   padding: 24px 20px;
+  gap: 12px;
 }
 
 .top-band select {
   max-width: 138px;
+  min-width: 0;
   min-height: 38px;
   border: 0;
   border-radius: 8px;
@@ -277,6 +280,10 @@ h1 {
   padding: 12px 0;
 }
 
+.bill-row > div:nth-child(2) {
+  min-width: 0;
+}
+
 .bill-row p,
 .profile-head p {
   margin: 4px 0 0;
@@ -300,6 +307,14 @@ h1 {
   margin-left: auto;
   font-weight: 800;
   white-space: nowrap;
+}
+
+.danger-link {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: #b42318;
+  font-size: 13px;
 }
 
 .amount.expense {
@@ -386,6 +401,7 @@ h1 {
   place-items: center;
   gap: 6px;
   font-size: 13px;
+  overflow-wrap: anywhere;
 }
 
 .category-chip.active span {
@@ -445,6 +461,7 @@ h1 {
   background: #f2f2f2;
   color: var(--ink);
   padding: 8px 12px;
+  overflow-wrap: anywhere;
 }
 
 .plain-list button:disabled {
@@ -499,4 +516,24 @@ h1 {
 .tab-item[aria-current="page"] {
   color: #111;
   font-weight: 800;
+}
+
+@media (max-width: 360px) {
+  .app-shell {
+    padding-inline: 10px;
+  }
+
+  .top-band {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .summary-strip,
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
 }
