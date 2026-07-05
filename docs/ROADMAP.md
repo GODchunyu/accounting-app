@@ -47,12 +47,12 @@
 
 - [x] **R-001** 建立项目治理文件：`AGENTS.md`、`CLAUDE.md`、`docs/PRD.md`、`docs/ROADMAP.md`。
 - [x] **R-008** 建立 GitHub 仓库并推送初始提交：`https://github.com/GODchunyu/accounting-app`。
-- [ ] **R-002** 初始化 monorepo 目录：`apps/web`、`apps/api`、`packages/shared`。
-- [ ] **R-003** 初始化前端 React + Vite + TypeScript 工程。
-- [ ] **R-004** 初始化后端 Express + TypeScript 工程。
-- [ ] **R-005** 配置 Docker Compose：PostgreSQL、API、uploads volume。
-- [ ] **R-006** 配置根目录脚本、lint、typecheck、test、build。
-- [ ] **R-007** 配置环境变量模板 `.env.example`，禁止提交真实密钥。
+- [x] **R-002** 初始化 monorepo 目录：`apps/web`、`apps/api`、`packages/shared`。
+- [x] **R-003** 初始化前端 React + Vite + TypeScript 工程。
+- [x] **R-004** 初始化后端 Express + TypeScript 工程。
+- [x] **R-005** 配置 Docker Compose：PostgreSQL、API、uploads volume。
+- [x] **R-006** 配置根目录脚本、lint、typecheck、test、build。
+- [x] **R-007** 配置环境变量模板 `.env.example`，禁止提交真实密钥。
 
 产出：工程可启动，基础命令可运行，文档和任务追踪机制落地。
 
@@ -119,12 +119,12 @@
 |------|------|-------|------|------|------|
 | R-001 | 项目治理文件 | 0 | 无 | - | 已完成 |
 | R-008 | GitHub 仓库与初始推送 | 0 | R-001 | - | 已完成 |
-| R-002 | monorepo 目录 | 0 | R-001 | - | 未开始 |
-| R-003 | 前端工程 | 0 | R-002 | - | 未开始 |
-| R-004 | 后端工程 | 0 | R-002 | - | 未开始 |
-| R-005 | Docker Compose | 0 | R-004 | A5 | 未开始 |
-| R-006 | 工程脚本和门禁 | 0 | R-003,R-004 | - | 未开始 |
-| R-007 | 环境变量模板 | 0 | R-004,R-005 | A8 | 未开始 |
+| R-002 | monorepo 目录 | 0 | R-001 | - | 已完成 |
+| R-003 | 前端工程 | 0 | R-002 | - | 已完成 |
+| R-004 | 后端工程 | 0 | R-002 | - | 已完成 |
+| R-005 | Docker Compose | 0 | R-004 | A5 | 已完成 |
+| R-006 | 工程脚本和门禁 | 0 | R-003,R-004 | - | 已完成 |
+| R-007 | 环境变量模板 | 0 | R-004,R-005 | A8 | 已完成 |
 | R-010 | Prisma schema | 1 | R-004,R-005 | A1-A6 | 未开始 |
 | R-011 | 注册登录 | 1 | R-010 | A2,A8 | 未开始 |
 | R-012 | 默认账本和分类 | 1 | R-011 | A3,A4 | 未开始 |
@@ -182,6 +182,7 @@ Phase 0 -> Phase 1 -> Phase 2 -> Phase 3 -> Phase 4
 | 2 | 图片长期存储 | 本地 volume 适合第一版，生产扩展性有限 | 后续如正式上线，再新增 ADR 迁移到 OSS/S3/MinIO |
 | 3 | H5 转 App | 当前按 H5 高保真做，后期 App 化需要封装或迁移 | 项目结构保持业务逻辑、API、UI 组件分层 |
 | 4 | E2E 工具未定 | 需要等工程初始化后选择 Playwright 或其他方案 | Phase 4 前确认并补脚本 |
+| 5 | Docker 本机未安装 | Phase 0 已提供 `docker-compose.yml` 和 API Dockerfile，但当前机器无法执行 Docker 冒烟 | 安装 Docker Desktop 后运行 `docker compose up -d` 验证 |
 
 ## 8. ADR 架构决策记录
 

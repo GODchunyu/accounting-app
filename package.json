@@ -1,0 +1,31 @@
+{
+  "name": "accounting-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Personal accounting app H5 prototype with a Dockerized API.",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @accounting-app/api --filter @accounting-app/web dev",
+    "dev:web": "pnpm --filter @accounting-app/web dev",
+    "dev:api": "pnpm --filter @accounting-app/api dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "db:generate": "pnpm --filter @accounting-app/api db:generate",
+    "db:migrate": "pnpm --filter @accounting-app/api db:migrate"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "eslint": "^9.30.1",
+    "eslint-config-prettier": "^10.1.5",
+    "prettier": "^3.6.2",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.1"
+  },
+  "packageManager": "pnpm@11.7.0"
+}

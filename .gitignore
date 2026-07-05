@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+.pnpm-store/
 
 # Build output
 dist/
@@ -32,4 +33,4 @@ Thumbs.db
 tmp/
 temp/
 *.tmp
-
+*.tsbuildinfo
