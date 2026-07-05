@@ -1,7 +1,8 @@
-import type { DefaultCategory } from "@accounting-app/shared";
+import type { BillType, DefaultCategory } from "@accounting-app/shared";
 import type { BookRecord, CategoryRecord, PublicUser, UserWithPassword } from "../auth.types.js";
 import type { AuthRepository, AuthRepositoryInspection } from "./authRepository.js";
 import type { BookRepository } from "../../books/repositories/bookRepository.js";
+import type { CategoryRepository } from "../../categories/repositories/categoryRepository.js";
 
 function now() {
   return new Date();
@@ -11,10 +12,13 @@ function createId(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export class InMemoryAuthRepository implements AuthRepository, AuthRepositoryInspection, BookRepository {
+export class InMemoryAuthRepository
+  implements AuthRepository, AuthRepositoryInspection, BookRepository, CategoryRepository
+{
   private readonly users = new Map<string, UserWithPassword>();
   private readonly books: BookRecord[] = [];
   private readonly categories: CategoryRecord[] = [];
+  private readonly usedCategoryIds = new Set<string>();
 
   async findUserByUsername(username: string) {
     return [...this.users.values()].find((user) => user.username === username) ?? null;
@@ -77,7 +81,9 @@ export class InMemoryAuthRepository implements AuthRepository, AuthRepositoryIns
   }
 
   async listBooksByUserId(userId: string) {
-    return this.books.filter((book) => book.userId === userId).sort((left, right) => left.createdAt.getTime() - right.createdAt.getTime());
+    return this.books
+      .filter((book) => book.userId === userId)
+      .sort((left, right) => left.createdAt.getTime() - right.createdAt.getTime());
   }
 
   async findBookById(bookId: string) {
@@ -119,8 +125,70 @@ export class InMemoryAuthRepository implements AuthRepository, AuthRepositoryIns
     }
   }
 
-  async listCategoriesByUserId(userId: string) {
-    return this.categories.filter((category) => category.userId === userId);
+  async listCategoriesByUserId(userId: string, type?: BillType) {
+    return this.categories
+      .filter((category) => category.userId === userId && (!type || category.type === type))
+      .sort((left, right) => left.sort - right.sort);
+  }
+
+  async findCategoryById(categoryId: string) {
+    return this.categories.find((category) => category.id === categoryId) ?? null;
+  }
+
+  async createCategory(input: { userId: string; type: BillType; name: string; icon: string; sort: number }) {
+    const timestamp = now();
+    const category: CategoryRecord = {
+      id: createId("category"),
+      userId: input.userId,
+      type: input.type,
+      name: input.name,
+      icon: input.icon,
+      sort: input.sort,
+      isDefault: false,
+      isActive: true,
+      createdAt: timestamp,
+      updatedAt: timestamp
+    };
+
+    this.categories.push(category);
+
+    return category;
+  }
+
+  async updateCategory(input: {
+    categoryId: string;
+    name?: string;
+    icon?: string;
+    sort?: number;
+    isActive?: boolean;
+  }) {
+    const category = this.categories.find((item) => item.id === input.categoryId);
+    if (!category) {
+      throw new Error("Category not found");
+    }
+
+    category.name = input.name ?? category.name;
+    category.icon = input.icon ?? category.icon;
+    category.sort = input.sort ?? category.sort;
+    category.isActive = input.isActive ?? category.isActive;
+    category.updatedAt = now();
+
+    return category;
+  }
+
+  async deleteCategory(categoryId: string) {
+    const index = this.categories.findIndex((category) => category.id === categoryId);
+    if (index >= 0) {
+      this.categories.splice(index, 1);
+    }
+  }
+
+  async categoryHasBills(categoryId: string) {
+    return this.usedCategoryIds.has(categoryId);
+  }
+
+  markCategoryAsUsedForTest(categoryId: string) {
+    this.usedCategoryIds.add(categoryId);
   }
 
   private toPublicUser(user: UserWithPassword): PublicUser {

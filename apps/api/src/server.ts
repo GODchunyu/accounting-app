@@ -7,6 +7,9 @@ import { PrismaAuthRepository } from "./modules/auth/repositories/prismaAuthRepo
 import { createBooksRouter } from "./modules/books/books.routes.js";
 import { BooksService } from "./modules/books/books.service.js";
 import { PrismaBookRepository } from "./modules/books/repositories/prismaBookRepository.js";
+import { createCategoriesRouter } from "./modules/categories/categories.routes.js";
+import { CategoriesService } from "./modules/categories/categories.service.js";
+import { PrismaCategoryRepository } from "./modules/categories/repositories/prismaCategoryRepository.js";
 
 const authRepository = new PrismaAuthRepository(prisma);
 const authService = new AuthService(authRepository, {
@@ -15,10 +18,13 @@ const authService = new AuthService(authRepository, {
 });
 const bookRepository = new PrismaBookRepository(prisma);
 const booksService = new BooksService(bookRepository);
+const categoryRepository = new PrismaCategoryRepository(prisma);
+const categoriesService = new CategoriesService(categoryRepository);
 
 const app = createApp({
   authRouter: createAuthRouter(authService),
-  booksRouter: createBooksRouter(authService, booksService)
+  booksRouter: createBooksRouter(authService, booksService),
+  categoriesRouter: createCategoriesRouter(authService, categoriesService)
 });
 
 app.listen(env.PORT, () => {

@@ -5,6 +5,7 @@ import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 export interface AppDependencies {
   authRouter?: Router;
   booksRouter?: Router;
+  categoriesRouter?: Router;
 }
 
 export function createApp(dependencies: AppDependencies = {}) {
@@ -23,6 +24,10 @@ export function createApp(dependencies: AppDependencies = {}) {
 
   if (dependencies.booksRouter) {
     app.use("/api", dependencies.booksRouter);
+  }
+
+  if (dependencies.categoriesRouter) {
+    app.use("/api", dependencies.categoriesRouter);
   }
 
   app.use(errorMiddleware);
