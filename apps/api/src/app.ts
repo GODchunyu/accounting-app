@@ -6,6 +6,7 @@ export interface AppDependencies {
   authRouter?: Router;
   booksRouter?: Router;
   categoriesRouter?: Router;
+  billsRouter?: Router;
 }
 
 export function createApp(dependencies: AppDependencies = {}) {
@@ -28,6 +29,10 @@ export function createApp(dependencies: AppDependencies = {}) {
 
   if (dependencies.categoriesRouter) {
     app.use("/api", dependencies.categoriesRouter);
+  }
+
+  if (dependencies.billsRouter) {
+    app.use("/api", dependencies.billsRouter);
   }
 
   app.use(errorMiddleware);

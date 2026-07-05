@@ -1,6 +1,7 @@
 import type { BillType, DefaultCategory } from "@accounting-app/shared";
 import type { BookRecord, CategoryRecord, PublicUser, UserWithPassword } from "../auth.types.js";
 import type { AuthRepository, AuthRepositoryInspection } from "./authRepository.js";
+import type { BillQuery, BillRecord, BillRepository } from "../../bills/repositories/billRepository.js";
 import type { BookRepository } from "../../books/repositories/bookRepository.js";
 import type { CategoryRepository } from "../../categories/repositories/categoryRepository.js";
 
@@ -13,11 +14,12 @@ function createId(prefix: string) {
 }
 
 export class InMemoryAuthRepository
-  implements AuthRepository, AuthRepositoryInspection, BookRepository, CategoryRepository
+  implements AuthRepository, AuthRepositoryInspection, BookRepository, CategoryRepository, BillRepository
 {
   private readonly users = new Map<string, UserWithPassword>();
   private readonly books: BookRecord[] = [];
   private readonly categories: CategoryRecord[] = [];
+  private readonly bills: BillRecord[] = [];
   private readonly usedCategoryIds = new Set<string>();
 
   async findUserByUsername(username: string) {
@@ -184,11 +186,103 @@ export class InMemoryAuthRepository
   }
 
   async categoryHasBills(categoryId: string) {
-    return this.usedCategoryIds.has(categoryId);
+    return this.usedCategoryIds.has(categoryId) || this.bills.some((bill) => bill.categoryId === categoryId);
   }
 
   markCategoryAsUsedForTest(categoryId: string) {
     this.usedCategoryIds.add(categoryId);
+  }
+
+  async listBills(query: BillQuery) {
+    return this.bills
+      .filter((bill) => {
+        if (bill.userId !== query.userId) {
+          return false;
+        }
+        if (query.bookId && bill.bookId !== query.bookId) {
+          return false;
+        }
+        if (query.type && bill.type !== query.type) {
+          return false;
+        }
+        if (query.categoryId && bill.categoryId !== query.categoryId) {
+          return false;
+        }
+        if (query.month && bill.happenedAt.toISOString().slice(0, 7) !== query.month) {
+          return false;
+        }
+
+        return true;
+      })
+      .sort((left, right) => right.happenedAt.getTime() - left.happenedAt.getTime());
+  }
+
+  async findBillById(billId: string) {
+    return this.bills.find((bill) => bill.id === billId) ?? null;
+  }
+
+  async createBill(input: {
+    userId: string;
+    bookId: string;
+    categoryId: string;
+    type: BillType;
+    amount: string;
+    remark: string | null;
+    imageUrl: string | null;
+    happenedAt: Date;
+  }) {
+    const timestamp = now();
+    const bill: BillRecord = {
+      id: createId("bill"),
+      userId: input.userId,
+      bookId: input.bookId,
+      categoryId: input.categoryId,
+      type: input.type,
+      amount: input.amount,
+      remark: input.remark,
+      imageUrl: input.imageUrl,
+      happenedAt: input.happenedAt,
+      createdAt: timestamp,
+      updatedAt: timestamp
+    };
+
+    this.bills.push(bill);
+
+    return bill;
+  }
+
+  async updateBill(input: {
+    billId: string;
+    bookId?: string;
+    categoryId?: string;
+    type?: BillType;
+    amount?: string;
+    remark?: string | null;
+    imageUrl?: string | null;
+    happenedAt?: Date;
+  }) {
+    const bill = this.bills.find((item) => item.id === input.billId);
+    if (!bill) {
+      throw new Error("Bill not found");
+    }
+
+    bill.bookId = input.bookId ?? bill.bookId;
+    bill.categoryId = input.categoryId ?? bill.categoryId;
+    bill.type = input.type ?? bill.type;
+    bill.amount = input.amount ?? bill.amount;
+    bill.remark = input.remark === undefined ? bill.remark : input.remark;
+    bill.imageUrl = input.imageUrl === undefined ? bill.imageUrl : input.imageUrl;
+    bill.happenedAt = input.happenedAt ?? bill.happenedAt;
+    bill.updatedAt = now();
+
+    return bill;
+  }
+
+  async deleteBill(billId: string) {
+    const index = this.bills.findIndex((bill) => bill.id === billId);
+    if (index >= 0) {
+      this.bills.splice(index, 1);
+    }
   }
 
   private toPublicUser(user: UserWithPassword): PublicUser {

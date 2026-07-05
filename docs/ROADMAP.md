@@ -65,7 +65,7 @@
 - [x] **R-012** 注册后自动创建默认账本和默认分类。（A3、A4）
 - [x] **R-013** 账本 CRUD：创建、重命名、列表、删除；禁止删除最后一个账本。（A3）
 - [x] **R-014** 分类 CRUD：新增、重命名、停用、删除未使用分类、排序。（A4）
-- [ ] **R-015** 账单 CRUD：新增、编辑、删除、按月份/分类/账本查询。（A1、A2、A6）
+- [x] **R-015** 账单 CRUD：新增、编辑、删除、按月份/分类/账本查询。（A1、A2、A6）
 - [ ] **R-016** 图片上传接口：格式、大小校验、唯一文件名、静态访问、删除清理。（A5）
 - [ ] **R-017** 月度统计接口：月收入、月支出、结余、每日趋势。
 - [ ] **R-018** 分类排行接口：分类金额、占比、排序。
@@ -130,7 +130,7 @@
 | R-012 | 默认账本和分类 | 1 | R-011 | A3,A4 | 已完成 |
 | R-013 | 账本 CRUD | 1 | R-012 | A3 | 已完成 |
 | R-014 | 分类 CRUD | 1 | R-012 | A4 | 已完成 |
-| R-015 | 账单 CRUD | 1 | R-013,R-014 | A1,A2,A6 | 未开始 |
+| R-015 | 账单 CRUD | 1 | R-013,R-014 | A1,A2,A6 | 已完成 |
 | R-016 | 图片上传 | 1 | R-015 | A5 | 未开始 |
 | R-017 | 月度统计 | 1 | R-015 | A1 | 未开始 |
 | R-018 | 分类排行 | 1 | R-015 | A1 | 未开始 |
@@ -183,7 +183,7 @@ Phase 0 -> Phase 1 -> Phase 2 -> Phase 3 -> Phase 4
 | 3 | H5 转 App | 当前按 H5 高保真做，后期 App 化需要封装或迁移 | 项目结构保持业务逻辑、API、UI 组件分层 |
 | 4 | E2E 工具未定 | 需要等工程初始化后选择 Playwright 或其他方案 | Phase 4 前确认并补脚本 |
 | 5 | Docker 本机未安装 | Phase 0 已提供 `docker-compose.yml` 和 API Dockerfile，但当前机器无法执行 Docker 冒烟 | 安装 Docker Desktop 后运行 `docker compose up -d` 验证 |
-| 6 | 真实数据库集成测试未运行 | 当前机器无 Docker/PostgreSQL，R-011/R-014 通过内存仓储 API 测试和 Prisma Client 生成验证；尚未跑真实 Postgres 迁移和集成测试 | 安装 Docker 后执行 `docker compose up -d`、Prisma migrate、认证、账本与分类 API 集成测试 |
+| 6 | 真实数据库集成测试未运行 | 当前机器无 Docker/PostgreSQL，R-011/R-015 通过内存仓储 API 测试和 Prisma Client 生成验证；尚未跑真实 Postgres 迁移和集成测试 | 安装 Docker 后执行 `docker compose up -d`、Prisma migrate、认证、账本、分类与账单 API 集成测试 |
 
 ## 8. ADR 架构决策记录
 
