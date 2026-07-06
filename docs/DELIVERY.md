@@ -10,17 +10,28 @@
 pnpm verify
 ```
 
-`pnpm verify` 等价于按顺序执行：
+`pnpm verify` 等价于按顺序执行代码门禁：
 
 ```bash
-pnpm lint
 pnpm format
+pnpm lint
 pnpm typecheck
 pnpm test
-pnpm test:e2e
 pnpm build
-pnpm --filter @accounting-app/api db:generate
-docker compose up -d --build
+pnpm db:generate
+pnpm test:e2e
+```
+
+Docker 冒烟已通过：
+
+```bash
+pnpm verify:docker
+```
+
+`pnpm verify:docker` 等价于：
+
+```bash
+docker compose up -d --build --wait api
 docker compose ps
 ```
 

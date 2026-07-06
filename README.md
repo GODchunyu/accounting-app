@@ -85,13 +85,19 @@ pnpm verify
 等价于按顺序执行：
 
 ```bash
-pnpm lint
 pnpm format
+pnpm lint
 pnpm typecheck
 pnpm test
-pnpm test:e2e
 pnpm build
-pnpm --filter @accounting-app/api db:generate
+pnpm db:generate
+pnpm test:e2e
+```
+
+Docker 冒烟：
+
+```bash
+pnpm verify:docker
 ```
 
 ## 当前能力
