@@ -9,6 +9,7 @@
 - [docs/PRD.md](docs/PRD.md)：产品需求文档。
 - [docs/ROADMAP.md](docs/ROADMAP.md)：路线图、任务追踪和 ADR。
 - [docs/DELIVERY.md](docs/DELIVERY.md)：交付检查、安全自查和已知限制。
+- [docs/RELEASE.md](docs/RELEASE.md)：发布与验收清单。
 
 ## 项目结构
 

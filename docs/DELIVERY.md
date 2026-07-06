@@ -65,3 +65,4 @@ docker compose ps
 ## 后续建议
 
 - 在真实设备尺寸上继续微调移动端视觉和交互细节。
+- 发布前按 [RELEASE.md](RELEASE.md) 完成环境变量、Docker、人工路径和回滚检查。
