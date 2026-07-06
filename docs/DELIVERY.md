@@ -10,6 +10,7 @@
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm test:e2e
 pnpm build
 pnpm --filter @accounting-app/api db:generate
 docker compose up -d --build
@@ -21,6 +22,7 @@ docker compose exec -T api pnpm exec prisma db push
 - 单元/规则层：认证、账本保护、分类删除/停用规则、账单金额和归属规则。
 - API 集成层：认证、账本、分类、账单、上传、统计、统一错误响应。
 - 前端组件层：登录注册、token 存储、四页导航、记账闭环、危险操作确认。
+- 浏览器 E2E 层：Chromium mobile viewport 覆盖注册登录 -> 记一笔 -> 明细 -> 图表核心闭环。
 - Docker 冒烟层：PostgreSQL healthy、API 启动、注册登录、默认账本/分类、创建账单、明细查询、月度统计、分类排行。
 
 ## 安全自查
@@ -36,9 +38,8 @@ docker compose exec -T api pnpm exec prisma db push
 
 ## 已知限制
 
-- E2E 目前由前端组件级核心闭环测试替代；后续如安装 Playwright，可补真实浏览器 E2E。
+- Playwright 当前只覆盖 Chromium mobile viewport；如需正式多端回归，可继续扩展 WebKit、桌面端和更多异常路径。
 
 ## 后续建议
 
-- 引入 Playwright，覆盖注册登录 -> 记一笔 -> 明细 -> 图表核心闭环。
 - 在真实设备尺寸上继续微调移动端视觉和交互细节。

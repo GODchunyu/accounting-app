@@ -77,6 +77,7 @@ pnpm test
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm test:e2e
 pnpm build
 pnpm --filter @accounting-app/api db:generate
 ```
