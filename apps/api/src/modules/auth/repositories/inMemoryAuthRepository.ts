@@ -114,6 +114,12 @@ export class InMemoryAuthRepository
     return this.books.find((book) => book.id === bookId) ?? null;
   }
 
+  async listBillImageUrlsByBookId(bookId: string) {
+    return this.bills.flatMap((bill) =>
+      bill.bookId === bookId && bill.imageUrl ? [bill.imageUrl] : [],
+    );
+  }
+
   async createBook(input: { userId: string; name: string }) {
     const timestamp = now();
     const book: BookRecord = {
@@ -146,6 +152,16 @@ export class InMemoryAuthRepository
     const index = this.books.findIndex((book) => book.id === bookId);
     if (index >= 0) {
       this.books.splice(index, 1);
+    }
+
+    for (
+      let billIndex = this.bills.length - 1;
+      billIndex >= 0;
+      billIndex -= 1
+    ) {
+      if (this.bills[billIndex]?.bookId === bookId) {
+        this.bills.splice(billIndex, 1);
+      }
     }
   }
 

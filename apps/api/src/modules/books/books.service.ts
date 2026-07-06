@@ -1,5 +1,6 @@
 import { AppError } from "../../errors/AppError.js";
 import type { BookRecord } from "../auth/auth.types.js";
+import type { ImageStorage } from "../uploads/imageStorage.js";
 import type { BookRepository } from "./repositories/bookRepository.js";
 
 export interface CreateBookInput {
@@ -14,7 +15,10 @@ export interface RenameBookInput {
 }
 
 export class BooksService {
-  constructor(private readonly repository: BookRepository) {}
+  constructor(
+    private readonly repository: BookRepository,
+    private readonly imageStorage?: Pick<ImageStorage, "deleteByUrl">,
+  ) {}
 
   async listBooks(userId: string): Promise<BookRecord[]> {
     return this.repository.listBooksByUserId(userId);
@@ -44,7 +48,11 @@ export class BooksService {
       throw new AppError("Cannot delete the last book", 400);
     }
 
+    const imageUrls = await this.repository.listBillImageUrlsByBookId(bookId);
     await this.repository.deleteBook(bookId);
+    await Promise.all(
+      imageUrls.map((imageUrl) => this.imageStorage?.deleteByUrl(imageUrl)),
+    );
   }
 
   private async assertOwnBook(userId: string, bookId: string) {

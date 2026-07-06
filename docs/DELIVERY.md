@@ -34,6 +34,7 @@ docker compose ps
 - 后端以 JWT 用户为准，不信任前端传入的 `userId`。
 - 账本、分类、账单均校验用户归属。
 - 账单校验账本、分类、类型一致性。
+- 删除账单或删除账本时会清理对应图片凭证。
 - 金额以字符串进入业务层，数据库使用 Prisma Decimal / numeric。
 - 图片上传限制单文件、5MB、jpg/jpeg/png/webp。
 - 未知错误统一返回 `Internal server error`，不暴露堆栈、密钥或数据库错误细节。

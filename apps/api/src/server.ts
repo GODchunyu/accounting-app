@@ -24,11 +24,11 @@ const authService = new AuthService(authRepository, {
   jwtExpiresIn: "7d",
 });
 const bookRepository = new PrismaBookRepository(prisma);
-const booksService = new BooksService(bookRepository);
 const categoryRepository = new PrismaCategoryRepository(prisma);
 const categoriesService = new CategoriesService(categoryRepository);
 const billRepository = new PrismaBillRepository(prisma);
 const imageStorage = new ImageStorage(env.UPLOAD_DIR);
+const booksService = new BooksService(bookRepository, imageStorage);
 const billsService = new BillsService(
   billRepository,
   bookRepository,

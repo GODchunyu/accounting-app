@@ -17,6 +17,18 @@ export class PrismaBookRepository implements BookRepository {
     });
   }
 
+  async listBillImageUrlsByBookId(bookId: string) {
+    const bills = await this.prisma.bill.findMany({
+      where: {
+        bookId,
+        imageUrl: { not: null },
+      },
+      select: { imageUrl: true },
+    });
+
+    return bills.flatMap((bill) => (bill.imageUrl ? [bill.imageUrl] : []));
+  }
+
   async createBook(input: { userId: string; name: string }) {
     return this.prisma.book.create({
       data: {
