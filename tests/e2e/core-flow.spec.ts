@@ -1,9 +1,15 @@
 import { expect, test } from "@playwright/test";
+import { writeFile } from "node:fs/promises";
+
+const tinyPngBase64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=";
 
 test("registers, records an expense, and shows it in detail and chart pages", async ({
   page,
-}) => {
+}, testInfo) => {
   const username = `e2e_${Date.now()}`;
+  const receiptPath = testInfo.outputPath("receipt.png");
+  await writeFile(receiptPath, Buffer.from(tinyPngBase64, "base64"));
 
   await page.goto("/");
   await page.getByRole("button", { name: "注册" }).first().click();
@@ -18,12 +24,19 @@ test("registers, records an expense, and shows it in detail and chart pages", as
   await expect(page.getByRole("heading", { name: "记账" })).toBeVisible();
   await page.getByLabel("金额").fill("12.34");
   await page.getByPlaceholder("备注").fill("e2e smoke");
+  await page.locator('input[type="file"]').setInputFiles(receiptPath);
+  await expect(page.getByText("receipt.png")).toBeVisible();
   await page.getByRole("button", { name: "完成" }).click();
 
   await expect(page.getByRole("heading", { name: "明细" })).toBeVisible();
   const billRow = page.locator(".bill-row", { hasText: "e2e smoke" });
   await expect(billRow).toBeVisible();
   await expect(billRow.getByText("-12.34")).toBeVisible();
+  await expect(billRow.locator("img.voucher-thumb")).toBeVisible();
+  await expect(billRow.locator("img.voucher-thumb")).toHaveAttribute(
+    "src",
+    /\/uploads\/bills\/.+\.png$/,
+  );
 
   await page.getByRole("button", { name: /图表/ }).click();
   await expect(page.getByRole("heading", { name: "图表" })).toBeVisible();
