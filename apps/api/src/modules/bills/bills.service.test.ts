@@ -120,6 +120,40 @@ describe("BillsService", () => {
     ).rejects.toThrow("Bill type must match category type");
   });
 
+  it("rejects image urls that were not created by the upload endpoint", async () => {
+    const { authService, billsService, repository } = createServices();
+    const fixture = await createUserFixtures(authService, repository);
+    const created = await billsService.createBill({
+      userId: fixture.user.id,
+      bookId: fixture.book.id,
+      categoryId: fixture.expenseCategory.id,
+      type: "expense",
+      amount: "9.90",
+      imageUrl: "/uploads/bills/receipt.png",
+      happenedAt: "2026-07-05T10:00:00.000Z",
+    });
+
+    await expect(
+      billsService.createBill({
+        userId: fixture.user.id,
+        bookId: fixture.book.id,
+        categoryId: fixture.expenseCategory.id,
+        type: "expense",
+        amount: "1.00",
+        imageUrl: "https://example.com/receipt.png",
+        happenedAt: "2026-07-05T10:00:00.000Z",
+      }),
+    ).rejects.toThrow("Invalid bill image URL");
+
+    await expect(
+      billsService.updateBill({
+        userId: fixture.user.id,
+        billId: created.id,
+        imageUrl: "/uploads/bills/../secret.png",
+      }),
+    ).rejects.toThrow("Invalid bill image URL");
+  });
+
   it("prevents users from using or reading another user's bill relations", async () => {
     const { authService, billsService, repository } = createServices();
     const alice = await createUserFixtures(authService, repository, "alice");

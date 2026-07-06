@@ -12,6 +12,8 @@ import type {
 const billTypes = new Set<BillType>(["expense", "income"]);
 const amountPattern = /^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/;
 const monthPattern = /^\d{4}-\d{2}$/;
+const billImageUrlPattern =
+  /^\/uploads\/bills\/[a-zA-Z0-9][a-zA-Z0-9._-]*\.(?:jpg|jpeg|png|webp)$/;
 
 export interface BillInput {
   userId: string;
@@ -88,7 +90,7 @@ export class BillsService {
       type: input.type,
       amount: this.normalizeAmount(input.amount),
       remark: this.normalizeRemark(input.remark),
-      imageUrl: this.normalizeOptionalString(input.imageUrl),
+      imageUrl: this.normalizeImageUrl(input.imageUrl),
       happenedAt: this.normalizeDate(input.happenedAt),
     });
   }
@@ -124,7 +126,7 @@ export class BillsService {
       imageUrl:
         input.imageUrl === undefined
           ? undefined
-          : this.normalizeOptionalString(input.imageUrl),
+          : this.normalizeImageUrl(input.imageUrl),
       happenedAt:
         input.happenedAt === undefined
           ? undefined
@@ -202,6 +204,23 @@ export class BillsService {
   private normalizeOptionalString(value?: string | null) {
     const normalized = value?.trim() ?? "";
     return normalized ? normalized : null;
+  }
+
+  private normalizeImageUrl(value?: string | null) {
+    const normalized = this.normalizeOptionalString(value);
+    if (!normalized) {
+      return null;
+    }
+
+    if (
+      normalized.includes("..") ||
+      normalized.includes("\\") ||
+      !billImageUrlPattern.test(normalized)
+    ) {
+      throw new AppError("Invalid bill image URL", 400);
+    }
+
+    return normalized;
   }
 
   private normalizeDate(value: string | Date) {

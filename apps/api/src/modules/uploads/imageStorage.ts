@@ -41,7 +41,8 @@ export class ImageStorage {
     const relativePath = imageUrl.replace(/^\/uploads\//, "");
     const absolutePath = path.resolve(this.uploadDir, relativePath);
     const uploadRoot = path.resolve(this.uploadDir);
-    if (!absolutePath.startsWith(uploadRoot)) {
+    const relativeFromRoot = path.relative(uploadRoot, absolutePath);
+    if (relativeFromRoot.startsWith("..") || path.isAbsolute(relativeFromRoot)) {
       return;
     }
 
