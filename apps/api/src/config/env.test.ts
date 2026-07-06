@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const placeholderJwtSecret =
   "change_me_to_a_very_long_secret_with_at_least_32_chars";
+const productionPlaceholderJwtSecret =
+  "replace_with_a_real_random_secret_of_at_least_32_chars";
 const strongJwtSecret = "production_secret_with_more_than_32_chars";
 
 async function loadEnv() {
@@ -35,6 +37,17 @@ describe("env", () => {
       "postgresql://accounting:accounting_dev_password@localhost:5432/accounting_app?schema=public",
     );
     vi.stubEnv("JWT_SECRET", placeholderJwtSecret);
+
+    await expect(loadEnv()).rejects.toThrow();
+  });
+
+  it("rejects the production template JWT secret in production", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv(
+      "DATABASE_URL",
+      "postgresql://accounting:accounting_dev_password@localhost:5432/accounting_app?schema=public",
+    );
+    vi.stubEnv("JWT_SECRET", productionPlaceholderJwtSecret);
 
     await expect(loadEnv()).rejects.toThrow();
   });

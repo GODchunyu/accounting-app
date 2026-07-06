@@ -38,9 +38,16 @@ cp .env.production.example .env
 - `API_PORT`：服务器上对外暴露的 API 端口。
 - `POSTGRES_PORT`：如不需要外部访问数据库，建议仅在内网或防火墙内暴露。
 
+替换后运行生产环境变量自检：
+
+```bash
+pnpm env:check -- .env
+```
+
 生产保护：
 
 - `NODE_ENV=production` 时，API 会拒绝使用模板 `JWT_SECRET` 启动。
+- `pnpm env:check -- .env` 会拒绝模板 `JWT_SECRET`、`POSTGRES_PASSWORD` 和非 production 配置。
 - Docker Compose 会根据 `.env` 生成 API 的 `DATABASE_URL`。
 
 ## 3. Docker 启动

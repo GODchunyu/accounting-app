@@ -15,6 +15,7 @@
     "test:e2e": "node scripts/run-e2e.mjs",
     "verify": "node scripts/verify.mjs",
     "verify:docker": "docker compose up -d --build --wait api && docker compose ps",
+    "env:check": "node scripts/env-check.mjs",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "db:generate": "pnpm --filter @accounting-app/api db:generate",

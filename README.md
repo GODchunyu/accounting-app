@@ -101,6 +101,12 @@ Docker 冒烟：
 pnpm verify:docker
 ```
 
+生产环境变量检查：
+
+```bash
+pnpm env:check -- .env
+```
+
 数据库备份：
 
 ```bash

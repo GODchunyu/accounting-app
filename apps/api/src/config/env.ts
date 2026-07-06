@@ -1,8 +1,10 @@
 import "dotenv/config";
 import { z } from "zod";
 
-const placeholderJwtSecret =
-  "change_me_to_a_very_long_secret_with_at_least_32_chars";
+const placeholderJwtSecrets = new Set([
+  "change_me_to_a_very_long_secret_with_at_least_32_chars",
+  "replace_with_a_real_random_secret_of_at_least_32_chars",
+]);
 
 const envSchema = z
   .object({
@@ -17,7 +19,7 @@ const envSchema = z
   .superRefine((value, context) => {
     if (
       value.NODE_ENV === "production" &&
-      value.JWT_SECRET === placeholderJwtSecret
+      placeholderJwtSecrets.has(value.JWT_SECRET)
     ) {
       context.addIssue({
         code: z.ZodIssueCode.custom,

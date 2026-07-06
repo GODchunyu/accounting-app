@@ -28,6 +28,12 @@ Docker 冒烟已通过：
 pnpm verify:docker
 ```
 
+生产环境变量自检：
+
+```bash
+pnpm env:check -- .env
+```
+
 `pnpm verify:docker` 等价于：
 
 ```bash
