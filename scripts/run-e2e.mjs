@@ -96,16 +96,41 @@ function delay(ms) {
 
 function stopProcessTree(child) {
   return new Promise((resolve) => {
+    let resolved = false;
+    let stopper;
+    const finish = () => {
+      if (resolved) {
+        return;
+      }
+      resolved = true;
+      child.kill();
+      child.unref();
+      stopper?.kill();
+      stopper?.unref();
+      resolve();
+    };
+
     if (process.platform !== "win32") {
       child.kill();
-      resolve();
+      finish();
       return;
     }
 
-    const stopper = spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], {
-      stdio: "ignore",
+    stopper = spawn(
+      process.env.ComSpec ?? "cmd.exe",
+      ["/c", "taskkill", "/PID", String(child.pid), "/T", "/F"],
+      {
+        stdio: "ignore",
+      },
+    );
+    const timeout = setTimeout(finish, 5_000);
+    stopper.once("exit", () => {
+      clearTimeout(timeout);
+      finish();
     });
-    stopper.once("exit", () => resolve());
-    stopper.once("error", () => resolve());
+    stopper.once("error", () => {
+      clearTimeout(timeout);
+      finish();
+    });
   });
 }

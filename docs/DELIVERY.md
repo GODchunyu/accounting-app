@@ -34,6 +34,11 @@ pnpm verify:docker
 pnpm env:check -- .env
 ```
 
+GitHub Actions：
+
+- `.github/workflows/ci.yml` 会在 `main` push 和 PR 时执行 `pnpm verify`。
+- CI 会安装 Chromium，并在失败时上传 Playwright 相关产物。
+
 `pnpm verify:docker` 等价于：
 
 ```bash
