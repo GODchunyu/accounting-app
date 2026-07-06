@@ -61,20 +61,20 @@ VITE_API_BASE_URL=http://localhost:3000/api
 docker compose up -d
 ```
 
-当前开发机器已完成 Docker Desktop 验证。首次启动后同步数据库 schema：
+当前开发机器已完成 Docker Desktop 验证。API 容器启动时会自动执行 Prisma migration：
 
 ```bash
 docker compose up -d
-docker compose exec -T api pnpm exec prisma db push
-pnpm test
+docker compose ps
 ```
 
-当前 Docker 冒烟已覆盖：PostgreSQL healthy、API 启动、注册登录、默认账本/分类、创建账单、明细查询、月度统计和分类排行。
+当前 Docker 冒烟已覆盖：PostgreSQL healthy、API migration deploy、API 启动、注册登录、默认账本/分类、创建账单、明细查询、月度统计和分类排行。
 
 ## 质量门禁
 
 ```bash
 pnpm lint
+pnpm format
 pnpm typecheck
 pnpm test
 pnpm test:e2e

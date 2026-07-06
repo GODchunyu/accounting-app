@@ -26,4 +26,4 @@ COPY --from=build /app/packages/shared packages/shared
 COPY --from=build /app/apps/api apps/api
 WORKDIR /app/apps/api
 EXPOSE 3000
-CMD ["node", "dist/server.js"]
+CMD ["sh", "docker-entrypoint.sh"]

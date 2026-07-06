@@ -176,15 +176,15 @@ Phase 0 -> Phase 1 -> Phase 2 -> Phase 3 -> Phase 4
 
 ## 7. Open Questions / 风险
 
-| #   | 事项                         | 风险 / 影响                                                                                                                                     | 建议处理                                              |
-| --- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| 1   | ~~Git 仓库当前不可用~~       | 已解决：本地 Git 仓库已修复，`main` 已跟踪 `origin/main`，远端仓库为 `https://github.com/GODchunyu/accounting-app`                              | 无需后续处理                                          |
-| 2   | 图片长期存储                 | 本地 volume 适合第一版，生产扩展性有限                                                                                                          | 后续如正式上线，再新增 ADR 迁移到 OSS/S3/MinIO        |
-| 3   | H5 转 App                    | 当前按 H5 高保真做，后期 App 化需要封装或迁移                                                                                                   | 项目结构保持业务逻辑、API、UI 组件分层                |
-| 4   | E2E 工具未定                 | 需要等工程初始化后选择 Playwright 或其他方案                                                                                                    | Phase 4 前确认并补脚本                                |
-| 5   | ~~Docker 本机未安装~~        | 已解决：2026-07-06 已安装 Docker Desktop，并完成 `docker compose up -d --build`；PostgreSQL healthy，API 正常启动                               | 无需后续处理                                          |
-| 6   | ~~真实数据库集成测试未运行~~ | 已解决：2026-07-06 已在 Docker Postgres 执行 `docker compose exec -T api pnpm exec prisma db push`，并完成认证、账本、分类、账单、统计 API 冒烟 | 无需后续处理                                          |
-| 7   | ~~Playwright E2E 未引入~~    | 已解决：2026-07-06 已引入 Playwright，Chromium mobile viewport 覆盖注册登录 -> 记一笔 -> 明细 -> 图表核心闭环                                   | 后续如需正式多端回归，可扩展 WebKit、桌面端和异常路径 |
+| #   | 事项                         | 风险 / 影响                                                                                                        | 建议处理                                              |
+| --- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| 1   | ~~Git 仓库当前不可用~~       | 已解决：本地 Git 仓库已修复，`main` 已跟踪 `origin/main`，远端仓库为 `https://github.com/GODchunyu/accounting-app` | 无需后续处理                                          |
+| 2   | 图片长期存储                 | 本地 volume 适合第一版，生产扩展性有限                                                                             | 后续如正式上线，再新增 ADR 迁移到 OSS/S3/MinIO        |
+| 3   | H5 转 App                    | 当前按 H5 高保真做，后期 App 化需要封装或迁移                                                                      | 项目结构保持业务逻辑、API、UI 组件分层                |
+| 4   | ~~E2E 工具未定~~             | 已解决：2026-07-06 已选择 Playwright，并纳入 `pnpm test:e2e` 门禁                                                  | 无需后续处理                                          |
+| 5   | ~~Docker 本机未安装~~        | 已解决：2026-07-06 已安装 Docker Desktop，并完成 `docker compose up -d --build`；PostgreSQL healthy，API 正常启动  | 无需后续处理                                          |
+| 6   | ~~真实数据库集成测试未运行~~ | 已解决：2026-07-06 已在 Docker Postgres 执行 `prisma migrate deploy`，并完成认证、账本、分类、账单、统计 API 冒烟  | 无需后续处理                                          |
+| 7   | ~~Playwright E2E 未引入~~    | 已解决：2026-07-06 已引入 Playwright，Chromium mobile viewport 覆盖注册登录 -> 记一笔 -> 明细 -> 图表核心闭环      | 后续如需正式多端回归，可扩展 WebKit、桌面端和异常路径 |
 
 ## 8. ADR 架构决策记录
 
