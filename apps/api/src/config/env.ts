@@ -1,14 +1,30 @@
 import "dotenv/config";
 import { z } from "zod";
 
-const envSchema = z.object({
-  NODE_ENV: z
-    .enum(["development", "test", "production"])
-    .default("development"),
-  PORT: z.coerce.number().int().positive().default(3000),
-  DATABASE_URL: z.string().min(1),
-  JWT_SECRET: z.string().min(32),
-  UPLOAD_DIR: z.string().default("uploads"),
-});
+const placeholderJwtSecret =
+  "change_me_to_a_very_long_secret_with_at_least_32_chars";
+
+const envSchema = z
+  .object({
+    NODE_ENV: z
+      .enum(["development", "test", "production"])
+      .default("development"),
+    PORT: z.coerce.number().int().positive().default(3000),
+    DATABASE_URL: z.string().min(1),
+    JWT_SECRET: z.string().min(32),
+    UPLOAD_DIR: z.string().default("uploads"),
+  })
+  .superRefine((value, context) => {
+    if (
+      value.NODE_ENV === "production" &&
+      value.JWT_SECRET === placeholderJwtSecret
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "JWT_SECRET must be changed in production",
+        path: ["JWT_SECRET"],
+      });
+    }
+  });
 
 export const env = envSchema.parse(process.env);

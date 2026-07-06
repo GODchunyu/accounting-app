@@ -13,6 +13,7 @@ playwright-report/
 .env
 .env.*
 !.env.example
+!.env.production.example
 
 # Logs
 *.log

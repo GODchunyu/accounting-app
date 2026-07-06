@@ -29,6 +29,8 @@ docs/       权威项目文档
 cp .env.example .env
 ```
 
+生产部署时不要使用 `.env.example` 中的默认密钥，可从 `.env.production.example` 复制并替换 `JWT_SECRET`、`POSTGRES_PASSWORD` 等敏感配置。
+
 2. 安装依赖：
 
 ```bash
@@ -67,6 +69,8 @@ docker compose up -d
 docker compose up -d
 docker compose ps
 ```
+
+Docker Compose 会读取 `.env`，默认值仅用于本地开发；当 `NODE_ENV=production` 时，API 会拒绝使用模板 JWT 密钥启动。
 
 当前 Docker 冒烟已覆盖：PostgreSQL healthy、API migration deploy、API 启动、注册登录、默认账本/分类、创建账单、明细查询、月度统计和分类排行。
 
