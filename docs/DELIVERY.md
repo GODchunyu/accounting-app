@@ -7,6 +7,12 @@
 当前已通过：
 
 ```bash
+pnpm verify
+```
+
+`pnpm verify` 等价于按顺序执行：
+
+```bash
 pnpm lint
 pnpm format
 pnpm typecheck

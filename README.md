@@ -76,6 +76,14 @@ Docker Compose 会读取 `.env`，默认值仅用于本地开发；当 `NODE_ENV
 
 ## 质量门禁
 
+完整验收：
+
+```bash
+pnpm verify
+```
+
+等价于按顺序执行：
+
 ```bash
 pnpm lint
 pnpm format
