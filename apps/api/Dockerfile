@@ -1,5 +1,8 @@
-FROM node:20-alpine AS base
+FROM node:22-bookworm-slim AS base
 WORKDIR /app
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates openssl \
+  && rm -rf /var/lib/apt/lists/*
 RUN corepack enable
 
 FROM base AS deps
@@ -24,4 +27,3 @@ COPY --from=build /app/apps/api apps/api
 WORKDIR /app/apps/api
 EXPOSE 3000
 CMD ["node", "dist/server.js"]
-

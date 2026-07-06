@@ -151,7 +151,7 @@
 | R-040 | 单元测试补齐 | 4 | Phase 1-3 | A1-A8 | 已完成 |
 | R-041 | 集成测试补齐 | 4 | Phase 1 | A1-A8 | 已完成 |
 | R-042 | E2E 核心闭环 | 4 | Phase 2-3 | A2,A7 | 已完成 |
-| R-043 | Docker 冒烟和 README | 4 | R-005 | - | 已完成（Docker 未安装，见风险 #5） |
+| R-043 | Docker 冒烟和 README | 4 | R-005 | - | 已完成（2026-07-06 已完成真实 Docker Compose 冒烟） |
 | R-044 | 安全自查 | 4 | Phase 1-3 | A2,A5,A8 | 已完成 |
 | R-045 | 文档回写 | 4 | 全部 | - | 已完成 |
 
@@ -182,8 +182,8 @@ Phase 0 -> Phase 1 -> Phase 2 -> Phase 3 -> Phase 4
 | 2 | 图片长期存储 | 本地 volume 适合第一版，生产扩展性有限 | 后续如正式上线，再新增 ADR 迁移到 OSS/S3/MinIO |
 | 3 | H5 转 App | 当前按 H5 高保真做，后期 App 化需要封装或迁移 | 项目结构保持业务逻辑、API、UI 组件分层 |
 | 4 | E2E 工具未定 | 需要等工程初始化后选择 Playwright 或其他方案 | Phase 4 前确认并补脚本 |
-| 5 | Docker 本机未安装 | 已提供 `docker-compose.yml` 和 API Dockerfile；`docker --version` 在当前机器返回命令不存在，因此无法执行真实 Docker 冒烟 | 安装 Docker Desktop 后运行 `docker compose up -d` 验证 |
-| 6 | 真实数据库集成测试未运行 | 当前机器无 Docker/PostgreSQL，R-011/R-045 通过内存仓储 API 测试、前端组件测试和 Prisma Client 生成验证；尚未跑真实 Postgres 迁移和集成测试 | 安装 Docker 后执行 `docker compose up -d`、Prisma migrate、认证、账本、分类、账单、上传与统计 API 集成测试 |
+| 5 | ~~Docker 本机未安装~~ | 已解决：2026-07-06 已安装 Docker Desktop，并完成 `docker compose up -d --build`；PostgreSQL healthy，API 正常启动 | 无需后续处理 |
+| 6 | ~~真实数据库集成测试未运行~~ | 已解决：2026-07-06 已在 Docker Postgres 执行 `docker compose exec -T api pnpm exec prisma db push`，并完成认证、账本、分类、账单、统计 API 冒烟 | 无需后续处理 |
 | 7 | Playwright E2E 未引入 | 当前 E2E 核心闭环由前端组件测试覆盖，尚未安装浏览器级 E2E 工具 | 后续如需正式浏览器回归，新增 Playwright 并补真实 E2E |
 
 ## 8. ADR 架构决策记录
