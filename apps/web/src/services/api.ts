@@ -1,6 +1,7 @@
 import { clearToken, getStoredToken } from "./auth";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
+export const AUTH_EXPIRED_EVENT = "accounting:auth-expired";
 
 export type BillType = "expense" | "income";
 
@@ -111,6 +112,7 @@ async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   if (response.status === 401) {
     clearToken();
+    window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
   }
 
   if (response.status === 204) {

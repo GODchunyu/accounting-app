@@ -19,6 +19,7 @@ import {
   type AuthUser,
 } from "../services/auth";
 import {
+  AUTH_EXPIRED_EVENT,
   apiDelete,
   apiGet,
   apiPatch,
@@ -86,6 +87,13 @@ export function App() {
   );
 
   useEffect(() => {
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleSessionExpired);
+    return () => {
+      window.removeEventListener(AUTH_EXPIRED_EVENT, handleSessionExpired);
+    };
+  }, []);
+
+  useEffect(() => {
     const token = getStoredToken();
     if (!token) return;
 
@@ -141,7 +149,7 @@ export function App() {
         (previous) => previous || bookPayload.books[0]?.id || "",
       );
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "加载失败");
+      setAuthenticatedRequestError(caught, "加载失败");
     } finally {
       setIsLoading(false);
     }
@@ -166,7 +174,7 @@ export function App() {
       setMonthlyStats(monthlyPayload.stats);
       setCategoryRanks(rankPayload.categories);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "加载失败");
+      setAuthenticatedRequestError(caught, "加载失败");
     } finally {
       setIsLoading(false);
     }
@@ -201,7 +209,7 @@ export function App() {
       setActiveTab("detail");
       await loadBookData();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "保存失败");
+      setAuthenticatedRequestError(caught, "保存失败");
     } finally {
       setIsSubmitting(false);
     }
@@ -261,12 +269,32 @@ export function App() {
   }
 
   function handleLogout() {
+    clearSession();
+  }
+
+  function handleSessionExpired() {
+    clearSession();
+    setError("登录状态已失效，请重新登录");
+  }
+
+  function setAuthenticatedRequestError(caught: unknown, fallback: string) {
+    if (!getStoredToken()) {
+      return;
+    }
+
+    setError(caught instanceof Error ? caught.message : fallback);
+  }
+
+  function clearSession() {
     clearToken();
     setUser(null);
     setPassword("");
     setBills([]);
     setBooks([]);
     setCategories([]);
+    setCurrentBookId("");
+    setMonthlyStats(null);
+    setCategoryRanks([]);
   }
 
   if (!user) {

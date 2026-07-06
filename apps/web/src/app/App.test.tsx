@@ -20,6 +20,20 @@ const created = (data: unknown) =>
 
 const noContent = () => Promise.resolve(new Response(null, { status: 204 }));
 
+const unauthorized = () =>
+  Promise.resolve(
+    new Response(
+      JSON.stringify({
+        ok: false,
+        error: { message: "登录状态已失效" },
+      }),
+      {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      },
+    ),
+  );
+
 const fixtures = {
   auth: {
     token: "jwt-token",
@@ -104,6 +118,18 @@ function mockApi() {
   });
 }
 
+function mockExpiredWorkspaceApi() {
+  return vi.spyOn(window, "fetch").mockImplementation((input) => {
+    const url = String(input);
+
+    if (url.endsWith("/users/me")) return ok({ user: fixtures.auth.user });
+    if (url.endsWith("/books")) return unauthorized();
+    if (url.endsWith("/categories")) return ok(fixtures.categories);
+
+    return ok({});
+  });
+}
+
 describe("App", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -152,6 +178,19 @@ describe("App", () => {
     await waitFor(() =>
       expect(screen.getByRole("heading", { name: "明细" })).toBeInTheDocument(),
     );
+  });
+
+  it("clears token and returns to login when the session expires", async () => {
+    window.localStorage.setItem("accounting_token", "jwt-token");
+    mockExpiredWorkspaceApi();
+
+    render(<App />);
+
+    await waitFor(() =>
+      expect(window.localStorage.getItem("accounting_token")).toBeNull(),
+    );
+    expect(screen.getByRole("heading", { name: "登录" })).toBeInTheDocument();
+    expect(screen.getByText("登录状态已失效，请重新登录")).toBeInTheDocument();
   });
 
   it("confirms before deleting a bill", async () => {

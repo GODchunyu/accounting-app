@@ -30,6 +30,7 @@ docker compose ps
 
 - 密码使用 bcrypt 哈希存储。
 - 业务接口通过 JWT 鉴权。
+- 前端业务接口收到 401 时会清理本地 token 并回到登录态。
 - `NODE_ENV=production` 时拒绝使用模板 `JWT_SECRET` 启动。
 - 后端以 JWT 用户为准，不信任前端传入的 `userId`。
 - 账本、分类、账单均校验用户归属。
