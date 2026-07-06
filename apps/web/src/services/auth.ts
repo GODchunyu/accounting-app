@@ -35,27 +35,35 @@ export async function login(username: string, password: string) {
 export async function fetchMe(token: string) {
   const response = await fetch(`${API_BASE_URL}/users/me`, {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
   const payload = await parseResponse<{ user: AuthUser }>(response);
   return payload.user;
 }
 
-async function sendAuthRequest(path: string, username: string, password: string) {
+async function sendAuthRequest(
+  path: string,
+  username: string,
+  password: string,
+) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ username, password })
+    body: JSON.stringify({ username, password }),
   });
 
   return parseResponse<AuthResult>(response);
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as { ok: boolean; data?: T; error?: { message?: string } };
+  const payload = (await response.json()) as {
+    ok: boolean;
+    data?: T;
+    error?: { message?: string };
+  };
   if (!response.ok || !payload.ok || !payload.data) {
     throw new Error(payload.error?.message ?? "Request failed");
   }

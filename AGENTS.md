@@ -12,4 +12,3 @@ Before working in this repository, agents must:
 4. If this file conflicts with `CLAUDE.md`, treat `CLAUDE.md` as authoritative.
 
 If agent rules need to change, update `CLAUDE.md` instead of expanding this bootstrap file.
-

@@ -9,10 +9,10 @@ function createTestApp() {
   const repository = new InMemoryAuthRepository();
   const authService = new AuthService(repository, {
     jwtSecret: "test_secret_with_at_least_32_characters",
-    jwtExpiresIn: "1h"
+    jwtExpiresIn: "1h",
   });
   const app = createApp({
-    authRouter: createAuthRouter(authService)
+    authRouter: createAuthRouter(authService),
   });
 
   return { app, repository };
@@ -28,10 +28,14 @@ describe("auth routes", () => {
       .expect(201);
 
     expect(registerResponse.body.data.token).toEqual(expect.any(String));
-    expect(registerResponse.body.data.user).toMatchObject({ username: "alice" });
+    expect(registerResponse.body.data.user).toMatchObject({
+      username: "alice",
+    });
     expect(registerResponse.body.data.user.passwordHash).toBeUndefined();
 
-    const categories = await repository.listCategoriesByUserId(registerResponse.body.data.user.id);
+    const categories = await repository.listCategoriesByUserId(
+      registerResponse.body.data.user.id,
+    );
     expect(categories.length).toBeGreaterThan(0);
 
     const loginResponse = await request(app)
@@ -54,4 +58,3 @@ describe("auth routes", () => {
     await request(app).get("/api/users/me").expect(401);
   });
 });
-

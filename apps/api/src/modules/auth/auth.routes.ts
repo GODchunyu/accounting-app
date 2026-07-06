@@ -1,11 +1,14 @@
 import { Router } from "express";
 import { z } from "zod";
-import { createAuthMiddleware, type AuthenticatedRequest } from "../../middlewares/authMiddleware.js";
+import {
+  createAuthMiddleware,
+  type AuthenticatedRequest,
+} from "../../middlewares/authMiddleware.js";
 import type { AuthService } from "./auth.service.js";
 
 const credentialsSchema = z.object({
   username: z.string(),
-  password: z.string()
+  password: z.string(),
 });
 
 export function createAuthRouter(authService: AuthService) {
@@ -34,9 +37,13 @@ export function createAuthRouter(authService: AuthService) {
     }
   });
 
-  router.get("/users/me", requireAuth, (request: AuthenticatedRequest, response) => {
-    response.json({ ok: true, data: { user: request.currentUser } });
-  });
+  router.get(
+    "/users/me",
+    requireAuth,
+    (request: AuthenticatedRequest, response) => {
+      response.json({ ok: true, data: { user: request.currentUser } });
+    },
+  );
 
   return router;
 }

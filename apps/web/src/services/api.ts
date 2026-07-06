@@ -55,7 +55,7 @@ export async function apiPost<T>(path: string, body: unknown) {
   return apiRequest<T>(path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
 }
 
@@ -63,13 +63,13 @@ export async function apiPatch<T>(path: string, body: unknown) {
   return apiRequest<T>(path, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
 }
 
 export async function apiDelete(path: string) {
   return apiRequest<void>(path, {
-    method: "DELETE"
+    method: "DELETE",
   });
 }
 
@@ -78,7 +78,7 @@ export async function uploadBillImage(file: File) {
   formData.append("image", file);
   return apiRequest<{ imageUrl: string }>("/uploads/bill-image", {
     method: "POST",
-    body: formData
+    body: formData,
   });
 }
 
@@ -87,7 +87,9 @@ export function getAssetUrl(path: string | null) {
     return "";
   }
 
-  return path.startsWith("http") ? path : `${API_BASE_URL.replace(/\/api$/, "")}${path}`;
+  return path.startsWith("http")
+    ? path
+    : `${API_BASE_URL.replace(/\/api$/, "")}${path}`;
 }
 
 async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -99,7 +101,7 @@ async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
-    headers
+    headers,
   });
   const payload = (await response.json().catch(() => ({}))) as {
     ok?: boolean;

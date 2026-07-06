@@ -2,7 +2,10 @@ import type { BillType } from "@accounting-app/shared";
 import type { CategoryRecord } from "../../auth/auth.types.js";
 
 export interface CategoryRepository {
-  listCategoriesByUserId(userId: string, type?: BillType): Promise<CategoryRecord[]>;
+  listCategoriesByUserId(
+    userId: string,
+    type?: BillType,
+  ): Promise<CategoryRecord[]>;
   findCategoryById(categoryId: string): Promise<CategoryRecord | null>;
   createCategory(input: {
     userId: string;

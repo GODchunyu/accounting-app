@@ -11,18 +11,21 @@ function createTestApp() {
   const repository = new InMemoryAuthRepository();
   const authService = new AuthService(repository, {
     jwtSecret: "test_secret_with_at_least_32_characters",
-    jwtExpiresIn: "1h"
+    jwtExpiresIn: "1h",
   });
   const categoriesService = new CategoriesService(repository);
   const app = createApp({
     authRouter: createAuthRouter(authService),
-    categoriesRouter: createCategoriesRouter(authService, categoriesService)
+    categoriesRouter: createCategoriesRouter(authService, categoriesService),
   });
 
   return { app, repository };
 }
 
-async function register(app: ReturnType<typeof createTestApp>["app"], username: string) {
+async function register(
+  app: ReturnType<typeof createTestApp>["app"],
+  username: string,
+) {
   const response = await request(app)
     .post("/api/auth/register")
     .send({ username, password: "secret123" })
@@ -30,7 +33,7 @@ async function register(app: ReturnType<typeof createTestApp>["app"], username: 
 
   return {
     token: response.body.data.token as string,
-    userId: response.body.data.user.id as string
+    userId: response.body.data.user.id as string,
   };
 }
 
@@ -54,9 +57,17 @@ describe("category routes", () => {
     const createResponse = await request(app)
       .post("/api/categories")
       .set("Authorization", `Bearer ${alice.token}`)
-      .send({ type: "expense", name: "Coffee", icon: "cup", userId: "attacker_user_id" })
+      .send({
+        type: "expense",
+        name: "Coffee",
+        icon: "cup",
+        userId: "attacker_user_id",
+      })
       .expect(201);
-    expect(createResponse.body.data.category).toMatchObject({ userId: alice.userId, name: "Coffee" });
+    expect(createResponse.body.data.category).toMatchObject({
+      userId: alice.userId,
+      name: "Coffee",
+    });
 
     const categoryId = createResponse.body.data.category.id as string;
     await request(app)
@@ -82,7 +93,10 @@ describe("category routes", () => {
       .send({ items: [{ id: categoryId, sort: 1 }] })
       .expect(200);
 
-    await request(app).delete(`/api/categories/${categoryId}`).set("Authorization", `Bearer ${alice.token}`).expect(204);
+    await request(app)
+      .delete(`/api/categories/${categoryId}`)
+      .set("Authorization", `Bearer ${alice.token}`)
+      .expect(204);
   });
 
   it("disables used categories instead of deleting them through the API", async () => {

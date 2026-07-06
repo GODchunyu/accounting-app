@@ -15,4 +15,3 @@
 - [CLAUDE.md](CLAUDE.md)
 
 后续需求、验收、路线图、任务状态和架构决策均以 `docs/PRD.md`、`docs/ROADMAP.md`、`CLAUDE.md` 为准，避免多份文档长期分叉。
-

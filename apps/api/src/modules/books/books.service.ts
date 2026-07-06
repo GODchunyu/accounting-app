@@ -23,7 +23,7 @@ export class BooksService {
   async createBook(input: CreateBookInput): Promise<BookRecord> {
     return this.repository.createBook({
       userId: input.userId,
-      name: this.normalizeName(input.name)
+      name: this.normalizeName(input.name),
     });
   }
 
@@ -32,7 +32,7 @@ export class BooksService {
 
     return this.repository.renameBook({
       bookId: input.bookId,
-      name: this.normalizeName(input.name)
+      name: this.normalizeName(input.name),
     });
   }
 

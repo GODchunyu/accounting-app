@@ -10,10 +10,10 @@ export default tseslint.config(
       "**/dist/**",
       "build/**",
       "coverage/**",
-      "apps/api/generated/**"
-    ]
+      "apps/api/generated/**",
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
-  prettier
+  prettier,
 );

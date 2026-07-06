@@ -7,7 +7,7 @@ function createService() {
   const repository = new InMemoryAuthRepository();
   const service = new AuthService(repository, {
     jwtSecret: "test_secret_with_at_least_32_characters",
-    jwtExpiresIn: "1h"
+    jwtExpiresIn: "1h",
   });
 
   return { repository, service };
@@ -19,7 +19,7 @@ describe("AuthService", () => {
 
     const result = await service.register({
       username: "alice",
-      password: "secret123"
+      password: "secret123",
     });
 
     expect(result.user.username).toBe("alice");
@@ -40,7 +40,9 @@ describe("AuthService", () => {
 
     await service.register({ username: "alice", password: "secret123" });
 
-    await expect(service.register({ username: "alice", password: "secret123" })).rejects.toThrow("用户名已存在");
+    await expect(
+      service.register({ username: "alice", password: "secret123" }),
+    ).rejects.toThrow("用户名已存在");
   });
 
   it("logs in with valid credentials and rejects invalid credentials", async () => {
@@ -48,17 +50,26 @@ describe("AuthService", () => {
 
     await service.register({ username: "alice", password: "secret123" });
 
-    const login = await service.login({ username: "alice", password: "secret123" });
+    const login = await service.login({
+      username: "alice",
+      password: "secret123",
+    });
     expect(login.token).toEqual(expect.any(String));
     expect(login.user.username).toBe("alice");
 
-    await expect(service.login({ username: "alice", password: "wrong123" })).rejects.toThrow("用户名或密码错误");
+    await expect(
+      service.login({ username: "alice", password: "wrong123" }),
+    ).rejects.toThrow("用户名或密码错误");
   });
 
   it("validates username and password length", async () => {
     const { service } = createService();
 
-    await expect(service.register({ username: "ab", password: "secret123" })).rejects.toThrow("用户名长度必须为 3-20 位");
-    await expect(service.register({ username: "alice", password: "12345" })).rejects.toThrow("密码至少 6 位");
+    await expect(
+      service.register({ username: "ab", password: "secret123" }),
+    ).rejects.toThrow("用户名长度必须为 3-20 位");
+    await expect(
+      service.register({ username: "alice", password: "12345" }),
+    ).rejects.toThrow("密码至少 6 位");
   });
 });

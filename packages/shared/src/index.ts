@@ -39,36 +39,44 @@ const expenseNames = [
   "维修",
   "捐赠",
   "彩票",
-  "亲友"
+  "亲友",
 ] as const;
 
-const incomeNames = ["工资", "奖金", "兼职", "理财", "礼金", "报销", "退款", "其他"] as const;
+const incomeNames = [
+  "工资",
+  "奖金",
+  "兼职",
+  "理财",
+  "礼金",
+  "报销",
+  "退款",
+  "其他",
+] as const;
 
 export const defaultCategories: readonly DefaultCategory[] = [
   ...expenseNames.map((name, index) => ({
     type: "expense" as const,
     name,
     icon: `expense-${index + 1}`,
-    sort: index + 1
+    sort: index + 1,
   })),
   ...incomeNames.map((name, index) => ({
     type: "income" as const,
     name,
     icon: `income-${index + 1}`,
-    sort: index + 1
-  }))
+    sort: index + 1,
+  })),
 ];
 
 export const imageUploadRules = {
   maxFiles: 1,
   maxBytes: 5 * 1024 * 1024,
   mimeTypes: ["image/jpeg", "image/png", "image/webp"] as const,
-  extensions: [".jpg", ".jpeg", ".png", ".webp"] as const
+  extensions: [".jpg", ".jpeg", ".png", ".webp"] as const,
 };
 
 export const authRules = {
   minUsernameLength: 3,
   maxUsernameLength: 20,
-  minPasswordLength: 6
+  minPasswordLength: 6,
 };
-

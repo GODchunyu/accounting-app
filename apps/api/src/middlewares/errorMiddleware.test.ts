@@ -24,7 +24,10 @@ describe("errorMiddleware", () => {
       .get("/api/app-error")
       .expect(409)
       .expect((response) => {
-        expect(response.body).toEqual({ ok: false, error: { message: "Business rule failed" } });
+        expect(response.body).toEqual({
+          ok: false,
+          error: { message: "Business rule failed" },
+        });
       });
   });
 

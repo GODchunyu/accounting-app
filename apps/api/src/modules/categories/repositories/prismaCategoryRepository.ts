@@ -9,15 +9,15 @@ export class PrismaCategoryRepository implements CategoryRepository {
     return this.prisma.category.findMany({
       where: {
         userId,
-        type
+        type,
       },
-      orderBy: { sort: "asc" }
+      orderBy: { sort: "asc" },
     });
   }
 
   async findCategoryById(categoryId: string) {
     return this.prisma.category.findUnique({
-      where: { id: categoryId }
+      where: { id: categoryId },
     });
   }
 
@@ -36,8 +36,8 @@ export class PrismaCategoryRepository implements CategoryRepository {
         icon: input.icon,
         sort: input.sort,
         isDefault: false,
-        isActive: true
-      }
+        isActive: true,
+      },
     });
   }
 
@@ -54,20 +54,20 @@ export class PrismaCategoryRepository implements CategoryRepository {
         name: input.name,
         icon: input.icon,
         sort: input.sort,
-        isActive: input.isActive
-      }
+        isActive: input.isActive,
+      },
     });
   }
 
   async deleteCategory(categoryId: string) {
     await this.prisma.category.delete({
-      where: { id: categoryId }
+      where: { id: categoryId },
     });
   }
 
   async categoryHasBills(categoryId: string) {
     const count = await this.prisma.bill.count({
-      where: { categoryId }
+      where: { categoryId },
     });
 
     return count > 0;

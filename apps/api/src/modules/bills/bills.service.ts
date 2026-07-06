@@ -3,7 +3,11 @@ import { AppError } from "../../errors/AppError.js";
 import type { BookRepository } from "../books/repositories/bookRepository.js";
 import type { CategoryRepository } from "../categories/repositories/categoryRepository.js";
 import type { ImageStorage } from "../uploads/imageStorage.js";
-import type { BillQuery, BillRecord, BillRepository } from "./repositories/billRepository.js";
+import type {
+  BillQuery,
+  BillRecord,
+  BillRepository,
+} from "./repositories/billRepository.js";
 
 const billTypes = new Set<BillType>(["expense", "income"]);
 const amountPattern = /^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/;
@@ -37,7 +41,7 @@ export class BillsService {
     private readonly billRepository: BillRepository,
     private readonly bookRepository: BookRepository,
     private readonly categoryRepository: CategoryRepository,
-    private readonly imageStorage?: Pick<ImageStorage, "deleteByUrl">
+    private readonly imageStorage?: Pick<ImageStorage, "deleteByUrl">,
   ) {}
 
   async listBills(query: BillQuery): Promise<BillRecord[]> {
@@ -74,7 +78,7 @@ export class BillsService {
       userId: input.userId,
       bookId: input.bookId,
       categoryId: input.categoryId,
-      type: input.type
+      type: input.type,
     });
 
     return this.billRepository.createBill({
@@ -85,7 +89,7 @@ export class BillsService {
       amount: this.normalizeAmount(input.amount),
       remark: this.normalizeRemark(input.remark),
       imageUrl: this.normalizeOptionalString(input.imageUrl),
-      happenedAt: this.normalizeDate(input.happenedAt)
+      happenedAt: this.normalizeDate(input.happenedAt),
     });
   }
 
@@ -94,14 +98,14 @@ export class BillsService {
     const next = {
       bookId: input.bookId ?? existing.bookId,
       categoryId: input.categoryId ?? existing.categoryId,
-      type: input.type ?? existing.type
+      type: input.type ?? existing.type,
     };
 
     await this.assertBillRelations({
       userId: input.userId,
       bookId: next.bookId,
       categoryId: next.categoryId,
-      type: next.type
+      type: next.type,
     });
 
     const updated = await this.billRepository.updateBill({
@@ -109,13 +113,26 @@ export class BillsService {
       bookId: input.bookId,
       categoryId: input.categoryId,
       type: input.type,
-      amount: input.amount === undefined ? undefined : this.normalizeAmount(input.amount),
-      remark: input.remark === undefined ? undefined : this.normalizeRemark(input.remark),
-      imageUrl: input.imageUrl === undefined ? undefined : this.normalizeOptionalString(input.imageUrl),
-      happenedAt: input.happenedAt === undefined ? undefined : this.normalizeDate(input.happenedAt)
+      amount:
+        input.amount === undefined
+          ? undefined
+          : this.normalizeAmount(input.amount),
+      remark:
+        input.remark === undefined
+          ? undefined
+          : this.normalizeRemark(input.remark),
+      imageUrl:
+        input.imageUrl === undefined
+          ? undefined
+          : this.normalizeOptionalString(input.imageUrl),
+      happenedAt:
+        input.happenedAt === undefined
+          ? undefined
+          : this.normalizeDate(input.happenedAt),
     });
 
-    const nextImageUrl = input.imageUrl === undefined ? existing.imageUrl : updated.imageUrl;
+    const nextImageUrl =
+      input.imageUrl === undefined ? existing.imageUrl : updated.imageUrl;
     if (existing.imageUrl && existing.imageUrl !== nextImageUrl) {
       await this.imageStorage?.deleteByUrl(existing.imageUrl);
     }
@@ -129,13 +146,21 @@ export class BillsService {
     await this.imageStorage?.deleteByUrl(bill.imageUrl);
   }
 
-  private async assertBillRelations(input: { userId: string; bookId: string; categoryId: string; type: BillType }) {
+  private async assertBillRelations(input: {
+    userId: string;
+    bookId: string;
+    categoryId: string;
+    type: BillType;
+  }) {
     if (!billTypes.has(input.type)) {
       throw new AppError("Invalid bill type", 400);
     }
 
     await this.assertOwnBook(input.userId, input.bookId);
-    const category = await this.assertOwnCategory(input.userId, input.categoryId);
+    const category = await this.assertOwnCategory(
+      input.userId,
+      input.categoryId,
+    );
     if (category.type !== input.type) {
       throw new AppError("Bill type must match category type", 400);
     }
@@ -160,7 +185,10 @@ export class BillsService {
   private normalizeAmount(amount: string) {
     const normalized = amount.trim();
     if (!amountPattern.test(normalized) || Number(normalized) <= 0) {
-      throw new AppError("Amount must be greater than 0 with up to 2 decimal places", 400);
+      throw new AppError(
+        "Amount must be greater than 0 with up to 2 decimal places",
+        400,
+      );
     }
 
     return Number(normalized).toFixed(2);

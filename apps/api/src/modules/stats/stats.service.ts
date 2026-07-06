@@ -18,7 +18,7 @@ export class StatsService {
   constructor(
     private readonly billRepository: BillRepository,
     private readonly bookRepository: BookRepository,
-    private readonly categoryRepository: CategoryRepository
+    private readonly categoryRepository: CategoryRepository,
   ) {}
 
   async getMonthlyStats(query: StatsQuery) {
@@ -26,20 +26,40 @@ export class StatsService {
     const bills = await this.billRepository.listBills({
       userId: query.userId,
       bookId: query.bookId,
-      month: query.month
+      month: query.month,
     });
-    const incomeCents = sumCents(bills.filter((bill) => bill.type === "income").map((bill) => bill.amount));
-    const expenseCents = sumCents(bills.filter((bill) => bill.type === "expense").map((bill) => bill.amount));
+    const incomeCents = sumCents(
+      bills.filter((bill) => bill.type === "income").map((bill) => bill.amount),
+    );
+    const expenseCents = sumCents(
+      bills
+        .filter((bill) => bill.type === "expense")
+        .map((bill) => bill.amount),
+    );
     const daysInMonth = getDaysInMonth(query.month);
     const trend = Array.from({ length: daysInMonth }, (_, index) => {
       const day = String(index + 1).padStart(2, "0");
       const date = `${query.month}-${day}`;
-      const dayBills = bills.filter((bill) => bill.happenedAt.toISOString().slice(0, 10) === date);
+      const dayBills = bills.filter(
+        (bill) => bill.happenedAt.toISOString().slice(0, 10) === date,
+      );
 
       return {
         date,
-        income: formatCents(sumCents(dayBills.filter((bill) => bill.type === "income").map((bill) => bill.amount))),
-        expense: formatCents(sumCents(dayBills.filter((bill) => bill.type === "expense").map((bill) => bill.amount)))
+        income: formatCents(
+          sumCents(
+            dayBills
+              .filter((bill) => bill.type === "income")
+              .map((bill) => bill.amount),
+          ),
+        ),
+        expense: formatCents(
+          sumCents(
+            dayBills
+              .filter((bill) => bill.type === "expense")
+              .map((bill) => bill.amount),
+          ),
+        ),
       };
     });
 
@@ -49,7 +69,7 @@ export class StatsService {
       balance: formatCents(incomeCents - expenseCents),
       averageDailyIncome: formatCents(Math.round(incomeCents / daysInMonth)),
       averageDailyExpense: formatCents(Math.round(expenseCents / daysInMonth)),
-      trend
+      trend,
     };
   }
 
@@ -63,15 +83,23 @@ export class StatsService {
       userId: query.userId,
       bookId: query.bookId,
       month: query.month,
-      type: query.type
+      type: query.type,
     });
-    const categories = await this.categoryRepository.listCategoriesByUserId(query.userId, query.type);
+    const categories = await this.categoryRepository.listCategoriesByUserId(
+      query.userId,
+      query.type,
+    );
     const totalCents = sumCents(bills.map((bill) => bill.amount));
-    const categoryById = new Map(categories.map((category) => [category.id, category]));
+    const categoryById = new Map(
+      categories.map((category) => [category.id, category]),
+    );
     const grouped = new Map<string, number>();
 
     for (const bill of bills) {
-      grouped.set(bill.categoryId, (grouped.get(bill.categoryId) ?? 0) + amountToCents(bill.amount));
+      grouped.set(
+        bill.categoryId,
+        (grouped.get(bill.categoryId) ?? 0) + amountToCents(bill.amount),
+      );
     }
 
     return [...grouped.entries()]
@@ -83,10 +111,16 @@ export class StatsService {
           categoryName: category?.name ?? "Unknown",
           icon: category?.icon ?? "custom",
           amount: formatCents(amountCents),
-          percent: totalCents === 0 ? 0 : Math.round((amountCents / totalCents) * 10000) / 100
+          percent:
+            totalCents === 0
+              ? 0
+              : Math.round((amountCents / totalCents) * 10000) / 100,
         };
       })
-      .sort((left, right) => amountToCents(right.amount) - amountToCents(left.amount));
+      .sort(
+        (left, right) =>
+          amountToCents(right.amount) - amountToCents(left.amount),
+      );
   }
 
   private async validateQuery(query: StatsQuery) {
@@ -118,5 +152,7 @@ function formatCents(cents: number) {
 
 function getDaysInMonth(month: string) {
   const [yearText, monthText] = month.split("-");
-  return new Date(Date.UTC(Number(yearText), Number(monthText), 0)).getUTCDate();
+  return new Date(
+    Date.UTC(Number(yearText), Number(monthText), 0),
+  ).getUTCDate();
 }

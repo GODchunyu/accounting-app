@@ -27,7 +27,10 @@ export interface ReorderCategoryInput {
 export class CategoriesService {
   constructor(private readonly repository: CategoryRepository) {}
 
-  async listCategories(userId: string, type?: BillType): Promise<CategoryRecord[]> {
+  async listCategories(
+    userId: string,
+    type?: BillType,
+  ): Promise<CategoryRecord[]> {
     if (type && !billTypes.has(type)) {
       throw new AppError("Invalid category type", 400);
     }
@@ -40,15 +43,21 @@ export class CategoriesService {
       throw new AppError("Invalid category type", 400);
     }
 
-    const categories = await this.repository.listCategoriesByUserId(input.userId, input.type);
-    const maxSort = categories.reduce((max, category) => Math.max(max, category.sort), 0);
+    const categories = await this.repository.listCategoriesByUserId(
+      input.userId,
+      input.type,
+    );
+    const maxSort = categories.reduce(
+      (max, category) => Math.max(max, category.sort),
+      0,
+    );
 
     return this.repository.createCategory({
       userId: input.userId,
       type: input.type,
       name: this.normalizeName(input.name),
       icon: this.normalizeIcon(input.icon),
-      sort: maxSort + 1
+      sort: maxSort + 1,
     });
   }
 
@@ -57,27 +66,35 @@ export class CategoriesService {
 
     return this.repository.updateCategory({
       categoryId: input.categoryId,
-      name: input.name === undefined ? undefined : this.normalizeName(input.name),
-      icon: input.icon === undefined ? undefined : this.normalizeIcon(input.icon)
+      name:
+        input.name === undefined ? undefined : this.normalizeName(input.name),
+      icon:
+        input.icon === undefined ? undefined : this.normalizeIcon(input.icon),
     });
   }
 
-  async disableCategory(userId: string, categoryId: string): Promise<CategoryRecord> {
+  async disableCategory(
+    userId: string,
+    categoryId: string,
+  ): Promise<CategoryRecord> {
     await this.assertOwnCategory(userId, categoryId);
 
     return this.repository.updateCategory({
       categoryId,
-      isActive: false
+      isActive: false,
     });
   }
 
-  async deleteCategory(userId: string, categoryId: string): Promise<{ deleted: boolean; category?: CategoryRecord }> {
+  async deleteCategory(
+    userId: string,
+    categoryId: string,
+  ): Promise<{ deleted: boolean; category?: CategoryRecord }> {
     await this.assertOwnCategory(userId, categoryId);
 
     if (await this.repository.categoryHasBills(categoryId)) {
       const category = await this.repository.updateCategory({
         categoryId,
-        isActive: false
+        isActive: false,
       });
 
       return { deleted: false, category };
@@ -87,7 +104,9 @@ export class CategoriesService {
     return { deleted: true };
   }
 
-  async reorderCategories(input: ReorderCategoryInput): Promise<CategoryRecord[]> {
+  async reorderCategories(
+    input: ReorderCategoryInput,
+  ): Promise<CategoryRecord[]> {
     const updated: CategoryRecord[] = [];
 
     for (const item of input.items) {
@@ -99,8 +118,8 @@ export class CategoriesService {
       updated.push(
         await this.repository.updateCategory({
           categoryId: item.id,
-          sort: item.sort
-        })
+          sort: item.sort,
+        }),
       );
     }
 

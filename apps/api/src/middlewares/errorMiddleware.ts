@@ -3,15 +3,20 @@ import multer from "multer";
 import { ZodError } from "zod";
 import { AppError } from "../errors/AppError.js";
 
-export const errorMiddleware: ErrorRequestHandler = (error, _request, response, next) => {
+export const errorMiddleware: ErrorRequestHandler = (
+  error,
+  _request,
+  response,
+  next,
+) => {
   void next;
 
   if (error instanceof AppError) {
     response.status(error.statusCode).json({
       ok: false,
       error: {
-        message: error.message
-      }
+        message: error.message,
+      },
     });
     return;
   }
@@ -20,8 +25,8 @@ export const errorMiddleware: ErrorRequestHandler = (error, _request, response, 
     response.status(400).json({
       ok: false,
       error: {
-        message: "Invalid request parameters"
-      }
+        message: "Invalid request parameters",
+      },
     });
     return;
   }
@@ -30,8 +35,11 @@ export const errorMiddleware: ErrorRequestHandler = (error, _request, response, 
     response.status(400).json({
       ok: false,
       error: {
-        message: error.code === "LIMIT_FILE_SIZE" ? "Image size must be at most 5MB" : "Invalid upload"
-      }
+        message:
+          error.code === "LIMIT_FILE_SIZE"
+            ? "Image size must be at most 5MB"
+            : "Invalid upload",
+      },
     });
     return;
   }
@@ -39,7 +47,7 @@ export const errorMiddleware: ErrorRequestHandler = (error, _request, response, 
   response.status(500).json({
     ok: false,
     error: {
-      message: "Internal server error"
-    }
+      message: "Internal server error",
+    },
   });
 };

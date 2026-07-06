@@ -7,13 +7,13 @@ export class PrismaBookRepository implements BookRepository {
   async listBooksByUserId(userId: string) {
     return this.prisma.book.findMany({
       where: { userId },
-      orderBy: { createdAt: "asc" }
+      orderBy: { createdAt: "asc" },
     });
   }
 
   async findBookById(bookId: string) {
     return this.prisma.book.findUnique({
-      where: { id: bookId }
+      where: { id: bookId },
     });
   }
 
@@ -22,21 +22,21 @@ export class PrismaBookRepository implements BookRepository {
       data: {
         userId: input.userId,
         name: input.name,
-        isDefault: false
-      }
+        isDefault: false,
+      },
     });
   }
 
   async renameBook(input: { bookId: string; name: string }) {
     return this.prisma.book.update({
       where: { id: input.bookId },
-      data: { name: input.name }
+      data: { name: input.name },
     });
   }
 
   async deleteBook(bookId: string) {
     await this.prisma.book.delete({
-      where: { id: bookId }
+      where: { id: bookId },
     });
   }
 }

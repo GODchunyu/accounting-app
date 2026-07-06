@@ -11,18 +11,21 @@ function createTestApp() {
   const repository = new InMemoryAuthRepository();
   const authService = new AuthService(repository, {
     jwtSecret: "test_secret_with_at_least_32_characters",
-    jwtExpiresIn: "1h"
+    jwtExpiresIn: "1h",
   });
   const booksService = new BooksService(repository);
   const app = createApp({
     authRouter: createAuthRouter(authService),
-    booksRouter: createBooksRouter(authService, booksService)
+    booksRouter: createBooksRouter(authService, booksService),
   });
 
   return { app };
 }
 
-async function register(app: ReturnType<typeof createTestApp>["app"], username: string) {
+async function register(
+  app: ReturnType<typeof createTestApp>["app"],
+  username: string,
+) {
   const response = await request(app)
     .post("/api/auth/register")
     .send({ username, password: "secret123" })
@@ -30,7 +33,7 @@ async function register(app: ReturnType<typeof createTestApp>["app"], username: 
 
   return {
     token: response.body.data.token as string,
-    userId: response.body.data.user.id as string
+    userId: response.body.data.user.id as string,
   };
 }
 
@@ -56,7 +59,10 @@ describe("book routes", () => {
       .set("Authorization", `Bearer ${alice.token}`)
       .send({ name: "Side Project", userId: "attacker_user_id" })
       .expect(201);
-    expect(createResponse.body.data.book).toMatchObject({ userId: alice.userId, name: "Side Project" });
+    expect(createResponse.body.data.book).toMatchObject({
+      userId: alice.userId,
+      name: "Side Project",
+    });
 
     const bookId = createResponse.body.data.book.id as string;
     await request(app)
@@ -68,23 +74,35 @@ describe("book routes", () => {
         expect(response.body.data.book.name).toBe("Daily");
       });
 
-    await request(app).delete(`/api/books/${bookId}`).set("Authorization", `Bearer ${alice.token}`).expect(204);
+    await request(app)
+      .delete(`/api/books/${bookId}`)
+      .set("Authorization", `Bearer ${alice.token}`)
+      .expect(204);
   });
 
   it("rejects deleting the last book", async () => {
     const { app } = createTestApp();
     const alice = await register(app, "alice");
-    const listResponse = await request(app).get("/api/books").set("Authorization", `Bearer ${alice.token}`).expect(200);
+    const listResponse = await request(app)
+      .get("/api/books")
+      .set("Authorization", `Bearer ${alice.token}`)
+      .expect(200);
     const defaultBookId = listResponse.body.data.books[0].id as string;
 
-    await request(app).delete(`/api/books/${defaultBookId}`).set("Authorization", `Bearer ${alice.token}`).expect(400);
+    await request(app)
+      .delete(`/api/books/${defaultBookId}`)
+      .set("Authorization", `Bearer ${alice.token}`)
+      .expect(400);
   });
 
   it("hides other users' books behind not found responses", async () => {
     const { app } = createTestApp();
     const alice = await register(app, "alice");
     const bob = await register(app, "bobby");
-    const bobBooks = await request(app).get("/api/books").set("Authorization", `Bearer ${bob.token}`).expect(200);
+    const bobBooks = await request(app)
+      .get("/api/books")
+      .set("Authorization", `Bearer ${bob.token}`)
+      .expect(200);
     const bobBookId = bobBooks.body.data.books[0].id as string;
 
     await request(app)

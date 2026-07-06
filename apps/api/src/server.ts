@@ -21,7 +21,7 @@ import { createUploadsRouter } from "./modules/uploads/uploads.routes.js";
 const authRepository = new PrismaAuthRepository(prisma);
 const authService = new AuthService(authRepository, {
   jwtSecret: env.JWT_SECRET,
-  jwtExpiresIn: "7d"
+  jwtExpiresIn: "7d",
 });
 const bookRepository = new PrismaBookRepository(prisma);
 const booksService = new BooksService(bookRepository);
@@ -29,8 +29,17 @@ const categoryRepository = new PrismaCategoryRepository(prisma);
 const categoriesService = new CategoriesService(categoryRepository);
 const billRepository = new PrismaBillRepository(prisma);
 const imageStorage = new ImageStorage(env.UPLOAD_DIR);
-const billsService = new BillsService(billRepository, bookRepository, categoryRepository, imageStorage);
-const statsService = new StatsService(billRepository, bookRepository, categoryRepository);
+const billsService = new BillsService(
+  billRepository,
+  bookRepository,
+  categoryRepository,
+  imageStorage,
+);
+const statsService = new StatsService(
+  billRepository,
+  bookRepository,
+  categoryRepository,
+);
 
 const app = createApp({
   authRouter: createAuthRouter(authService),
@@ -39,7 +48,7 @@ const app = createApp({
   billsRouter: createBillsRouter(authService, billsService),
   uploadsRouter: createUploadsRouter(authService, imageStorage),
   statsRouter: createStatsRouter(authService, statsService),
-  uploadsDir: env.UPLOAD_DIR
+  uploadsDir: env.UPLOAD_DIR,
 });
 
 app.listen(env.PORT, () => {

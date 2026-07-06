@@ -8,6 +8,7 @@
 
 ```bash
 pnpm lint
+pnpm format
 pnpm typecheck
 pnpm test
 pnpm test:e2e

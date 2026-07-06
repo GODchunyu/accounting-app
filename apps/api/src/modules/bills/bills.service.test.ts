@@ -7,20 +7,38 @@ function createServices() {
   const repository = new InMemoryAuthRepository();
   const authService = new AuthService(repository, {
     jwtSecret: "test_secret_with_at_least_32_characters",
-    jwtExpiresIn: "1h"
+    jwtExpiresIn: "1h",
   });
   const billsService = new BillsService(repository, repository, repository);
 
   return { authService, billsService, repository };
 }
 
-async function createUserFixtures(authService: AuthService, repository: InMemoryAuthRepository, username = "alice") {
-  const { user } = await authService.register({ username, password: "secret123" });
+async function createUserFixtures(
+  authService: AuthService,
+  repository: InMemoryAuthRepository,
+  username = "alice",
+) {
+  const { user } = await authService.register({
+    username,
+    password: "secret123",
+  });
   const [book] = await repository.listBooksByUserId(user.id);
-  const [expenseCategory] = await repository.listCategoriesByUserId(user.id, "expense");
-  const [incomeCategory] = await repository.listCategoriesByUserId(user.id, "income");
+  const [expenseCategory] = await repository.listCategoriesByUserId(
+    user.id,
+    "expense",
+  );
+  const [incomeCategory] = await repository.listCategoriesByUserId(
+    user.id,
+    "income",
+  );
 
-  return { user, book: book!, expenseCategory: expenseCategory!, incomeCategory: incomeCategory! };
+  return {
+    user,
+    book: book!,
+    expenseCategory: expenseCategory!,
+    incomeCategory: incomeCategory!,
+  };
 }
 
 describe("BillsService", () => {
@@ -35,17 +53,22 @@ describe("BillsService", () => {
       type: "expense",
       amount: "12.3",
       remark: " lunch ",
-      happenedAt: "2026-07-05T10:00:00.000Z"
+      happenedAt: "2026-07-05T10:00:00.000Z",
     });
     expect(created).toMatchObject({
       userId: fixture.user.id,
       amount: "12.30",
       remark: "lunch",
-      type: "expense"
+      type: "expense",
     });
 
     await expect(
-      billsService.listBills({ userId: fixture.user.id, bookId: fixture.book.id, month: "2026-07", type: "expense" })
+      billsService.listBills({
+        userId: fixture.user.id,
+        bookId: fixture.book.id,
+        month: "2026-07",
+        type: "expense",
+      }),
     ).resolves.toHaveLength(1);
 
     const updated = await billsService.updateBill({
@@ -53,13 +76,21 @@ describe("BillsService", () => {
       billId: created.id,
       amount: "99.99",
       categoryId: fixture.incomeCategory.id,
-      type: "income"
+      type: "income",
     });
-    expect(updated).toMatchObject({ amount: "99.99", type: "income", categoryId: fixture.incomeCategory.id });
+    expect(updated).toMatchObject({
+      amount: "99.99",
+      type: "income",
+      categoryId: fixture.incomeCategory.id,
+    });
 
-    await expect(billsService.getBill(fixture.user.id, created.id)).resolves.toMatchObject({ id: created.id });
+    await expect(
+      billsService.getBill(fixture.user.id, created.id),
+    ).resolves.toMatchObject({ id: created.id });
     await billsService.deleteBill(fixture.user.id, created.id);
-    await expect(billsService.getBill(fixture.user.id, created.id)).rejects.toThrow("Bill not found");
+    await expect(
+      billsService.getBill(fixture.user.id, created.id),
+    ).rejects.toThrow("Bill not found");
   });
 
   it("rejects invalid amount and category type mismatches", async () => {
@@ -73,8 +104,8 @@ describe("BillsService", () => {
         categoryId: fixture.expenseCategory.id,
         type: "expense",
         amount: "0",
-        happenedAt: "2026-07-05T10:00:00.000Z"
-      })
+        happenedAt: "2026-07-05T10:00:00.000Z",
+      }),
     ).rejects.toThrow("Amount must be greater than 0");
 
     await expect(
@@ -84,8 +115,8 @@ describe("BillsService", () => {
         categoryId: fixture.expenseCategory.id,
         type: "income",
         amount: "1.00",
-        happenedAt: "2026-07-05T10:00:00.000Z"
-      })
+        happenedAt: "2026-07-05T10:00:00.000Z",
+      }),
     ).rejects.toThrow("Bill type must match category type");
   });
 
@@ -99,7 +130,7 @@ describe("BillsService", () => {
       categoryId: bob.expenseCategory.id,
       type: "expense",
       amount: "8.00",
-      happenedAt: "2026-07-05T10:00:00.000Z"
+      happenedAt: "2026-07-05T10:00:00.000Z",
     });
 
     await expect(
@@ -109,9 +140,11 @@ describe("BillsService", () => {
         categoryId: alice.expenseCategory.id,
         type: "expense",
         amount: "1.00",
-        happenedAt: "2026-07-05T10:00:00.000Z"
-      })
+        happenedAt: "2026-07-05T10:00:00.000Z",
+      }),
     ).rejects.toThrow("Book not found");
-    await expect(billsService.getBill(alice.user.id, bobBill.id)).rejects.toThrow("Bill not found");
+    await expect(
+      billsService.getBill(alice.user.id, bobBill.id),
+    ).rejects.toThrow("Bill not found");
   });
 });

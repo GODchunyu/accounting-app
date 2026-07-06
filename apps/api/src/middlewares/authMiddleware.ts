@@ -8,7 +8,11 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export function createAuthMiddleware(authService: AuthService) {
-  return async (request: AuthenticatedRequest, _response: Response, next: NextFunction) => {
+  return async (
+    request: AuthenticatedRequest,
+    _response: Response,
+    next: NextFunction,
+  ) => {
     const authorization = request.header("Authorization");
 
     if (!authorization?.startsWith("Bearer ")) {

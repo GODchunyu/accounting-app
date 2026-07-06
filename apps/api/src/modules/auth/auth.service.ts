@@ -2,7 +2,12 @@ import { authRules, defaultCategories } from "@accounting-app/shared";
 import bcrypt from "bcryptjs";
 import jwt, { type SignOptions } from "jsonwebtoken";
 import { AppError } from "../../errors/AppError.js";
-import type { AuthResult, LoginInput, PublicUser, RegisterInput } from "./auth.types.js";
+import type {
+  AuthResult,
+  LoginInput,
+  PublicUser,
+  RegisterInput,
+} from "./auth.types.js";
 import type { AuthRepository } from "./repositories/authRepository.js";
 
 export interface AuthServiceOptions {
@@ -17,13 +22,15 @@ interface AuthTokenPayload {
 export class AuthService {
   constructor(
     private readonly repository: AuthRepository,
-    private readonly options: AuthServiceOptions
+    private readonly options: AuthServiceOptions,
   ) {}
 
   async register(input: RegisterInput): Promise<AuthResult> {
     this.validateCredentials(input);
 
-    const existingUser = await this.repository.findUserByUsername(input.username);
+    const existingUser = await this.repository.findUserByUsername(
+      input.username,
+    );
     if (existingUser) {
       throw new AppError("用户名已存在", 409);
     }
@@ -34,12 +41,12 @@ export class AuthService {
       passwordHash,
       nickname: input.username,
       defaultBookName: "默认账本",
-      categories: defaultCategories
+      categories: defaultCategories,
     });
 
     return {
       token: this.signToken(user.id),
-      user
+      user,
     };
   }
 
@@ -51,20 +58,26 @@ export class AuthService {
       throw new AppError("用户名或密码错误", 401);
     }
 
-    const isValidPassword = await bcrypt.compare(input.password, user.passwordHash);
+    const isValidPassword = await bcrypt.compare(
+      input.password,
+      user.passwordHash,
+    );
     if (!isValidPassword) {
       throw new AppError("用户名或密码错误", 401);
     }
 
     return {
       token: this.signToken(user.id),
-      user: this.toPublicUser(user)
+      user: this.toPublicUser(user),
     };
   }
 
   async getUserFromToken(token: string): Promise<PublicUser> {
     try {
-      const payload = jwt.verify(token, this.options.jwtSecret) as AuthTokenPayload;
+      const payload = jwt.verify(
+        token,
+        this.options.jwtSecret,
+      ) as AuthTokenPayload;
       const user = await this.repository.findUserById(payload.sub);
 
       if (!user) {
@@ -81,7 +94,10 @@ export class AuthService {
   }
 
   private validateCredentials(input: RegisterInput | LoginInput) {
-    if (input.username.length < authRules.minUsernameLength || input.username.length > authRules.maxUsernameLength) {
+    if (
+      input.username.length < authRules.minUsernameLength ||
+      input.username.length > authRules.maxUsernameLength
+    ) {
       throw new AppError("用户名长度必须为 3-20 位", 400);
     }
 
@@ -93,11 +109,13 @@ export class AuthService {
   private signToken(userId: string) {
     return jwt.sign({}, this.options.jwtSecret, {
       subject: userId,
-      expiresIn: this.options.jwtExpiresIn
+      expiresIn: this.options.jwtExpiresIn,
     });
   }
 
-  private toPublicUser(user: PublicUser & { passwordHash: string }): PublicUser {
+  private toPublicUser(
+    user: PublicUser & { passwordHash: string },
+  ): PublicUser {
     const { passwordHash: _passwordHash, ...publicUser } = user;
     void _passwordHash;
     return publicUser;

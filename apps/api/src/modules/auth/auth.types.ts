@@ -49,4 +49,3 @@ export interface AuthResult {
   token: string;
   user: PublicUser;
 }
-

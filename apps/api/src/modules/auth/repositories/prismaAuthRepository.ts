@@ -7,7 +7,7 @@ export class PrismaAuthRepository implements AuthRepository {
 
   async findUserByUsername(username: string) {
     return this.prisma.user.findUnique({
-      where: { username }
+      where: { username },
     });
   }
 
@@ -20,8 +20,8 @@ export class PrismaAuthRepository implements AuthRepository {
         nickname: true,
         avatarUrl: true,
         createdAt: true,
-        updatedAt: true
-      }
+        updatedAt: true,
+      },
     });
   }
 
@@ -37,7 +37,7 @@ export class PrismaAuthRepository implements AuthRepository {
         data: {
           username: input.username,
           passwordHash: input.passwordHash,
-          nickname: input.nickname
+          nickname: input.nickname,
         },
         select: {
           id: true,
@@ -45,16 +45,16 @@ export class PrismaAuthRepository implements AuthRepository {
           nickname: true,
           avatarUrl: true,
           createdAt: true,
-          updatedAt: true
-        }
+          updatedAt: true,
+        },
       });
 
       await tx.book.create({
         data: {
           userId: user.id,
           name: input.defaultBookName,
-          isDefault: true
-        }
+          isDefault: true,
+        },
       });
 
       await tx.category.createMany({
@@ -65,12 +65,11 @@ export class PrismaAuthRepository implements AuthRepository {
           icon: category.icon,
           sort: category.sort,
           isDefault: true,
-          isActive: true
-        }))
+          isActive: true,
+        })),
       });
 
       return user;
     });
   }
 }
-

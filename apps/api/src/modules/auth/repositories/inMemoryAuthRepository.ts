@@ -1,7 +1,19 @@
 import type { BillType, DefaultCategory } from "@accounting-app/shared";
-import type { BookRecord, CategoryRecord, PublicUser, UserWithPassword } from "../auth.types.js";
-import type { AuthRepository, AuthRepositoryInspection } from "./authRepository.js";
-import type { BillQuery, BillRecord, BillRepository } from "../../bills/repositories/billRepository.js";
+import type {
+  BookRecord,
+  CategoryRecord,
+  PublicUser,
+  UserWithPassword,
+} from "../auth.types.js";
+import type {
+  AuthRepository,
+  AuthRepositoryInspection,
+} from "./authRepository.js";
+import type {
+  BillQuery,
+  BillRecord,
+  BillRepository,
+} from "../../bills/repositories/billRepository.js";
 import type { BookRepository } from "../../books/repositories/bookRepository.js";
 import type { CategoryRepository } from "../../categories/repositories/categoryRepository.js";
 
@@ -14,7 +26,12 @@ function createId(prefix: string) {
 }
 
 export class InMemoryAuthRepository
-  implements AuthRepository, AuthRepositoryInspection, BookRepository, CategoryRepository, BillRepository
+  implements
+    AuthRepository,
+    AuthRepositoryInspection,
+    BookRepository,
+    CategoryRepository,
+    BillRepository
 {
   private readonly users = new Map<string, UserWithPassword>();
   private readonly books: BookRecord[] = [];
@@ -23,7 +40,10 @@ export class InMemoryAuthRepository
   private readonly usedCategoryIds = new Set<string>();
 
   async findUserByUsername(username: string) {
-    return [...this.users.values()].find((user) => user.username === username) ?? null;
+    return (
+      [...this.users.values()].find((user) => user.username === username) ??
+      null
+    );
   }
 
   async findUserById(userId: string) {
@@ -50,7 +70,7 @@ export class InMemoryAuthRepository
       nickname: input.nickname,
       avatarUrl: null,
       createdAt: timestamp,
-      updatedAt: timestamp
+      updatedAt: timestamp,
     };
 
     this.users.set(user.id, user);
@@ -61,7 +81,7 @@ export class InMemoryAuthRepository
       name: input.defaultBookName,
       isDefault: true,
       createdAt: timestamp,
-      updatedAt: timestamp
+      updatedAt: timestamp,
     });
 
     this.categories.push(
@@ -75,8 +95,8 @@ export class InMemoryAuthRepository
         isDefault: true,
         isActive: true,
         createdAt: timestamp,
-        updatedAt: timestamp
-      }))
+        updatedAt: timestamp,
+      })),
     );
 
     return this.toPublicUser(user);
@@ -85,7 +105,9 @@ export class InMemoryAuthRepository
   async listBooksByUserId(userId: string) {
     return this.books
       .filter((book) => book.userId === userId)
-      .sort((left, right) => left.createdAt.getTime() - right.createdAt.getTime());
+      .sort(
+        (left, right) => left.createdAt.getTime() - right.createdAt.getTime(),
+      );
   }
 
   async findBookById(bookId: string) {
@@ -100,7 +122,7 @@ export class InMemoryAuthRepository
       name: input.name,
       isDefault: false,
       createdAt: timestamp,
-      updatedAt: timestamp
+      updatedAt: timestamp,
     };
 
     this.books.push(book);
@@ -129,15 +151,26 @@ export class InMemoryAuthRepository
 
   async listCategoriesByUserId(userId: string, type?: BillType) {
     return this.categories
-      .filter((category) => category.userId === userId && (!type || category.type === type))
+      .filter(
+        (category) =>
+          category.userId === userId && (!type || category.type === type),
+      )
       .sort((left, right) => left.sort - right.sort);
   }
 
   async findCategoryById(categoryId: string) {
-    return this.categories.find((category) => category.id === categoryId) ?? null;
+    return (
+      this.categories.find((category) => category.id === categoryId) ?? null
+    );
   }
 
-  async createCategory(input: { userId: string; type: BillType; name: string; icon: string; sort: number }) {
+  async createCategory(input: {
+    userId: string;
+    type: BillType;
+    name: string;
+    icon: string;
+    sort: number;
+  }) {
     const timestamp = now();
     const category: CategoryRecord = {
       id: createId("category"),
@@ -149,7 +182,7 @@ export class InMemoryAuthRepository
       isDefault: false,
       isActive: true,
       createdAt: timestamp,
-      updatedAt: timestamp
+      updatedAt: timestamp,
     };
 
     this.categories.push(category);
@@ -164,7 +197,9 @@ export class InMemoryAuthRepository
     sort?: number;
     isActive?: boolean;
   }) {
-    const category = this.categories.find((item) => item.id === input.categoryId);
+    const category = this.categories.find(
+      (item) => item.id === input.categoryId,
+    );
     if (!category) {
       throw new Error("Category not found");
     }
@@ -179,14 +214,19 @@ export class InMemoryAuthRepository
   }
 
   async deleteCategory(categoryId: string) {
-    const index = this.categories.findIndex((category) => category.id === categoryId);
+    const index = this.categories.findIndex(
+      (category) => category.id === categoryId,
+    );
     if (index >= 0) {
       this.categories.splice(index, 1);
     }
   }
 
   async categoryHasBills(categoryId: string) {
-    return this.usedCategoryIds.has(categoryId) || this.bills.some((bill) => bill.categoryId === categoryId);
+    return (
+      this.usedCategoryIds.has(categoryId) ||
+      this.bills.some((bill) => bill.categoryId === categoryId)
+    );
   }
 
   markCategoryAsUsedForTest(categoryId: string) {
@@ -208,13 +248,18 @@ export class InMemoryAuthRepository
         if (query.categoryId && bill.categoryId !== query.categoryId) {
           return false;
         }
-        if (query.month && bill.happenedAt.toISOString().slice(0, 7) !== query.month) {
+        if (
+          query.month &&
+          bill.happenedAt.toISOString().slice(0, 7) !== query.month
+        ) {
           return false;
         }
 
         return true;
       })
-      .sort((left, right) => right.happenedAt.getTime() - left.happenedAt.getTime());
+      .sort(
+        (left, right) => right.happenedAt.getTime() - left.happenedAt.getTime(),
+      );
   }
 
   async findBillById(billId: string) {
@@ -243,7 +288,7 @@ export class InMemoryAuthRepository
       imageUrl: input.imageUrl,
       happenedAt: input.happenedAt,
       createdAt: timestamp,
-      updatedAt: timestamp
+      updatedAt: timestamp,
     };
 
     this.bills.push(bill);
@@ -271,7 +316,8 @@ export class InMemoryAuthRepository
     bill.type = input.type ?? bill.type;
     bill.amount = input.amount ?? bill.amount;
     bill.remark = input.remark === undefined ? bill.remark : input.remark;
-    bill.imageUrl = input.imageUrl === undefined ? bill.imageUrl : input.imageUrl;
+    bill.imageUrl =
+      input.imageUrl === undefined ? bill.imageUrl : input.imageUrl;
     bill.happenedAt = input.happenedAt ?? bill.happenedAt;
     bill.updatedAt = now();
 

@@ -7,9 +7,17 @@ import {
   LogOut,
   Plus,
   ReceiptText,
-  UserRoundCheck
+  UserRoundCheck,
 } from "lucide-react";
-import { clearToken, fetchMe, getStoredToken, login, register, storeToken, type AuthUser } from "../services/auth";
+import {
+  clearToken,
+  fetchMe,
+  getStoredToken,
+  login,
+  register,
+  storeToken,
+  type AuthUser,
+} from "../services/auth";
 import {
   apiDelete,
   apiGet,
@@ -22,16 +30,21 @@ import {
   type Book,
   type Category,
   type CategoryRank,
-  type MonthlyStats
+  type MonthlyStats,
 } from "../services/api";
 
 type TabKey = "detail" | "chart" | "record" | "profile";
 
-const tabs: Array<{ key: TabKey; label: string; icon: typeof BookOpen; primary?: boolean }> = [
+const tabs: Array<{
+  key: TabKey;
+  label: string;
+  icon: typeof BookOpen;
+  primary?: boolean;
+}> = [
   { key: "detail", label: "明细", icon: BookOpen },
   { key: "chart", label: "图表", icon: BarChart3 },
   { key: "record", label: "记账", icon: Plus, primary: true },
-  { key: "profile", label: "我的", icon: CircleUserRound }
+  { key: "profile", label: "我的", icon: CircleUserRound },
 ];
 
 const today = new Date().toISOString().slice(0, 10);
@@ -65,8 +78,11 @@ export function App() {
   const [newCategoryName, setNewCategoryName] = useState("");
 
   const activeCategories = useMemo(
-    () => categories.filter((category) => category.type === recordType && category.isActive),
-    [categories, recordType]
+    () =>
+      categories.filter(
+        (category) => category.type === recordType && category.isActive,
+      ),
+    [categories, recordType],
   );
 
   useEffect(() => {
@@ -96,7 +112,10 @@ export function App() {
     setError("");
     setIsSubmitting(true);
     try {
-      const result = mode === "login" ? await login(username, password) : await register(username, password);
+      const result =
+        mode === "login"
+          ? await login(username, password)
+          : await register(username, password);
       storeToken(result.token);
       setUser(result.user);
       setPassword("");
@@ -114,11 +133,13 @@ export function App() {
     try {
       const [bookPayload, categoryPayload] = await Promise.all([
         apiGet<{ books: Book[] }>("/books"),
-        apiGet<{ categories: Category[] }>("/categories")
+        apiGet<{ categories: Category[] }>("/categories"),
       ]);
       setBooks(bookPayload.books);
       setCategories(categoryPayload.categories);
-      setCurrentBookId((previous) => previous || bookPayload.books[0]?.id || "");
+      setCurrentBookId(
+        (previous) => previous || bookPayload.books[0]?.id || "",
+      );
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "加载失败");
     } finally {
@@ -131,11 +152,15 @@ export function App() {
     setError("");
     try {
       const [billPayload, monthlyPayload, rankPayload] = await Promise.all([
-        apiGet<{ bills: Bill[] }>(`/bills?bookId=${currentBookId}&month=${month}`),
-        apiGet<{ stats: MonthlyStats }>(`/stats/monthly?bookId=${currentBookId}&month=${month}`),
+        apiGet<{ bills: Bill[] }>(
+          `/bills?bookId=${currentBookId}&month=${month}`,
+        ),
+        apiGet<{ stats: MonthlyStats }>(
+          `/stats/monthly?bookId=${currentBookId}&month=${month}`,
+        ),
         apiGet<{ categories: CategoryRank[] }>(
-          `/stats/categories?bookId=${currentBookId}&month=${month}&type=${chartType}`
-        )
+          `/stats/categories?bookId=${currentBookId}&month=${month}&type=${chartType}`,
+        ),
       ]);
       setBills(billPayload.bills);
       setMonthlyStats(monthlyPayload.stats);
@@ -157,7 +182,9 @@ export function App() {
     setIsSubmitting(true);
     setError("");
     try {
-      const imageUrl = voucherFile ? (await uploadBillImage(voucherFile)).imageUrl : null;
+      const imageUrl = voucherFile
+        ? (await uploadBillImage(voucherFile)).imageUrl
+        : null;
       await apiPost<{ bill: Bill }>("/bills", {
         bookId: currentBookId,
         categoryId: recordCategoryId,
@@ -165,7 +192,7 @@ export function App() {
         amount,
         remark,
         imageUrl,
-        happenedAt: `${happenedAt}T12:00:00.000Z`
+        happenedAt: `${happenedAt}T12:00:00.000Z`,
       });
       setAmount("");
       setRemark("");
@@ -183,7 +210,9 @@ export function App() {
   async function handleCreateBook(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!newBookName.trim()) return;
-    const payload = await apiPost<{ book: Book }>("/books", { name: newBookName });
+    const payload = await apiPost<{ book: Book }>("/books", {
+      name: newBookName,
+    });
     setBooks((previous) => [...previous, payload.book]);
     setCurrentBookId(payload.book.id);
     setNewBookName("");
@@ -195,7 +224,7 @@ export function App() {
     const payload = await apiPost<{ category: Category }>("/categories", {
       type: recordType,
       name: newCategoryName,
-      icon: "custom"
+      icon: "custom",
     });
     setCategories((previous) => [...previous, payload.category]);
     setNewCategoryName("");
@@ -203,8 +232,15 @@ export function App() {
 
   async function handleDisableCategory(categoryId: string) {
     if (!window.confirm("确认停用这个分类？")) return;
-    const payload = await apiPatch<{ category: Category }>(`/categories/${categoryId}/disable`, {});
-    setCategories((previous) => previous.map((item) => (item.id === categoryId ? payload.category : item)));
+    const payload = await apiPatch<{ category: Category }>(
+      `/categories/${categoryId}/disable`,
+      {},
+    );
+    setCategories((previous) =>
+      previous.map((item) =>
+        item.id === categoryId ? payload.category : item,
+      ),
+    );
   }
 
   async function handleDeleteBill(billId: string) {
@@ -214,11 +250,14 @@ export function App() {
   }
 
   async function handleDeleteBook(bookId: string) {
-    if (!window.confirm("确认删除这个账本？账本下的账单和图片凭证也会删除。")) return;
+    if (!window.confirm("确认删除这个账本？账本下的账单和图片凭证也会删除。"))
+      return;
     await apiDelete(`/books/${bookId}`);
     const remainingBooks = books.filter((book) => book.id !== bookId);
     setBooks(remainingBooks);
-    setCurrentBookId((previous) => (previous === bookId ? remainingBooks[0]?.id ?? "" : previous));
+    setCurrentBookId((previous) =>
+      previous === bookId ? (remainingBooks[0]?.id ?? "") : previous,
+    );
   }
 
   function handleLogout() {
@@ -256,7 +295,11 @@ export function App() {
             <p className="eyebrow">Accounting App</p>
             <h1>{tabs.find((tab) => tab.key === activeTab)?.label}</h1>
           </div>
-          <select value={currentBookId} onChange={(event) => setCurrentBookId(event.target.value)} aria-label="当前账本">
+          <select
+            value={currentBookId}
+            onChange={(event) => setCurrentBookId(event.target.value)}
+            aria-label="当前账本"
+          >
             {books.map((book) => (
               <option key={book.id} value={book.id}>
                 {book.name}
@@ -266,8 +309,12 @@ export function App() {
         </header>
 
         {error ? <p className="form-error page-message">{error}</p> : null}
-        {notice ? <p className="success-message page-message">{notice}</p> : null}
-        {isLoading ? <p className="muted-message page-message">加载中</p> : null}
+        {notice ? (
+          <p className="success-message page-message">{notice}</p>
+        ) : null}
+        {isLoading ? (
+          <p className="muted-message page-message">加载中</p>
+        ) : null}
 
         {activeTab === "detail" ? (
           <DetailPage
@@ -280,7 +327,12 @@ export function App() {
           />
         ) : null}
         {activeTab === "chart" ? (
-          <ChartPage chartType={chartType} monthlyStats={monthlyStats} ranks={categoryRanks} setChartType={setChartType} />
+          <ChartPage
+            chartType={chartType}
+            monthlyStats={monthlyStats}
+            ranks={categoryRanks}
+            setChartType={setChartType}
+          />
         ) : null}
         {activeTab === "record" ? (
           <RecordPage
@@ -348,7 +400,11 @@ function AuthPanel(props: {
         </div>
       </div>
       <div className="segmented-control" aria-label="认证模式">
-        <button className={props.mode === "login" ? "active" : ""} type="button" onClick={() => props.setMode("login")}>
+        <button
+          className={props.mode === "login" ? "active" : ""}
+          type="button"
+          onClick={() => props.setMode("login")}
+        >
           登录
         </button>
         <button
@@ -379,15 +435,29 @@ function AuthPanel(props: {
           />
         </label>
         {props.error ? <p className="form-error">{props.error}</p> : null}
-        <button className="primary-action" type="submit" disabled={props.isSubmitting}>
-          {props.isSubmitting ? "处理中" : props.mode === "login" ? "登录" : "注册"}
+        <button
+          className="primary-action"
+          type="submit"
+          disabled={props.isSubmitting}
+        >
+          {props.isSubmitting
+            ? "处理中"
+            : props.mode === "login"
+              ? "登录"
+              : "注册"}
         </button>
       </form>
     </section>
   );
 }
 
-function TabBar({ activeTab, setActiveTab }: { activeTab: TabKey; setActiveTab: (tab: TabKey) => void }) {
+function TabBar({
+  activeTab,
+  setActiveTab,
+}: {
+  activeTab: TabKey;
+  setActiveTab: (tab: TabKey) => void;
+}) {
   return (
     <nav className="tab-bar" aria-label="主导航">
       {tabs.map((tab) => {
@@ -400,7 +470,11 @@ function TabBar({ activeTab, setActiveTab }: { activeTab: TabKey; setActiveTab: 
             aria-current={activeTab === tab.key ? "page" : undefined}
             onClick={() => setActiveTab(tab.key)}
           >
-            <Icon aria-hidden="true" size={tab.primary ? 30 : 22} strokeWidth={2.2} />
+            <Icon
+              aria-hidden="true"
+              size={tab.primary ? 30 : 22}
+              strokeWidth={2.2}
+            />
             <span>{tab.label}</span>
           </button>
         );
@@ -417,13 +491,20 @@ function DetailPage(props: {
   onDeleteBill: (billId: string) => void;
   setMonth: (month: string) => void;
 }) {
-  const categoryById = new Map(props.categories.map((category) => [category.id, category]));
+  const categoryById = new Map(
+    props.categories.map((category) => [category.id, category]),
+  );
   const grouped = groupBillsByDate(props.bills);
 
   return (
     <section className="page-stack">
       <div className="month-row">
-        <input type="month" value={props.month} onChange={(event) => props.setMonth(event.target.value)} aria-label="月份" />
+        <input
+          type="month"
+          value={props.month}
+          onChange={(event) => props.setMonth(event.target.value)}
+          aria-label="月份"
+        />
       </div>
       <div className="summary-strip">
         <span>收入</span>
@@ -449,17 +530,35 @@ function DetailPage(props: {
               const category = categoryById.get(bill.categoryId);
               return (
                 <article className="bill-row" key={bill.id}>
-                  <div className="category-icon">{category?.name.slice(0, 1) ?? "账"}</div>
+                  <div className="category-icon">
+                    {category?.name.slice(0, 1) ?? "账"}
+                  </div>
                   <div>
                     <strong>{category?.name ?? "分类"}</strong>
                     <p>{bill.remark || "无备注"}</p>
-                    {bill.imageUrl ? <img alt="图片凭证" className="voucher-thumb" src={getAssetUrl(bill.imageUrl)} /> : null}
+                    {bill.imageUrl ? (
+                      <img
+                        alt="图片凭证"
+                        className="voucher-thumb"
+                        src={getAssetUrl(bill.imageUrl)}
+                      />
+                    ) : null}
                   </div>
-                  <span className={bill.type === "expense" ? "amount expense" : "amount income"}>
+                  <span
+                    className={
+                      bill.type === "expense"
+                        ? "amount expense"
+                        : "amount income"
+                    }
+                  >
                     {bill.type === "expense" ? "-" : "+"}
                     {bill.amount}
                   </span>
-                  <button className="danger-link" type="button" onClick={() => props.onDeleteBill(bill.id)}>
+                  <button
+                    className="danger-link"
+                    type="button"
+                    onClick={() => props.onDeleteBill(bill.id)}
+                  >
                     删除
                   </button>
                 </article>
@@ -478,16 +577,30 @@ function ChartPage(props: {
   ranks: CategoryRank[];
   setChartType: (type: BillType) => void;
 }) {
-  const total = props.chartType === "expense" ? props.monthlyStats?.expense : props.monthlyStats?.income;
-  const average = props.chartType === "expense" ? props.monthlyStats?.averageDailyExpense : props.monthlyStats?.averageDailyIncome;
+  const total =
+    props.chartType === "expense"
+      ? props.monthlyStats?.expense
+      : props.monthlyStats?.income;
+  const average =
+    props.chartType === "expense"
+      ? props.monthlyStats?.averageDailyExpense
+      : props.monthlyStats?.averageDailyIncome;
 
   return (
     <section className="page-stack">
       <div className="segmented-control">
-        <button className={props.chartType === "expense" ? "active" : ""} type="button" onClick={() => props.setChartType("expense")}>
+        <button
+          className={props.chartType === "expense" ? "active" : ""}
+          type="button"
+          onClick={() => props.setChartType("expense")}
+        >
           支出
         </button>
-        <button className={props.chartType === "income" ? "active" : ""} type="button" onClick={() => props.setChartType("income")}>
+        <button
+          className={props.chartType === "income" ? "active" : ""}
+          type="button"
+          onClick={() => props.setChartType("income")}
+        >
           收入
         </button>
       </div>
@@ -503,7 +616,9 @@ function ChartPage(props: {
       </div>
       <TrendLine stats={props.monthlyStats} type={props.chartType} />
       <div className="rank-list">
-        {props.ranks.length === 0 ? <p className="muted-message">暂无排行</p> : null}
+        {props.ranks.length === 0 ? (
+          <p className="muted-message">暂无排行</p>
+        ) : null}
         {props.ranks.map((rank) => (
           <div className="rank-row" key={rank.categoryId}>
             <div className="rank-title">
@@ -521,8 +636,17 @@ function ChartPage(props: {
   );
 }
 
-function TrendLine({ stats, type }: { stats: MonthlyStats | null; type: BillType }) {
-  const values = stats?.trend.map((point) => Number(type === "expense" ? point.expense : point.income)) ?? [];
+function TrendLine({
+  stats,
+  type,
+}: {
+  stats: MonthlyStats | null;
+  type: BillType;
+}) {
+  const values =
+    stats?.trend.map((point) =>
+      Number(type === "expense" ? point.expense : point.income),
+    ) ?? [];
   const max = Math.max(...values, 1);
   const points = values
     .map((value, index) => {
@@ -533,8 +657,20 @@ function TrendLine({ stats, type }: { stats: MonthlyStats | null; type: BillType
     .join(" ");
 
   return (
-    <svg className="trend-line" viewBox="0 0 300 110" role="img" aria-label="月度趋势折线图">
-      <polyline points={points} fill="none" stroke="#222" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    <svg
+      className="trend-line"
+      viewBox="0 0 300 110"
+      role="img"
+      aria-label="月度趋势折线图"
+    >
+      <polyline
+        points={points}
+        fill="none"
+        stroke="#222"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -559,17 +695,29 @@ function RecordPage(props: {
   return (
     <form className="page-stack" onSubmit={props.onSubmit}>
       <div className="segmented-control">
-        <button className={props.recordType === "expense" ? "active" : ""} type="button" onClick={() => props.setRecordType("expense")}>
+        <button
+          className={props.recordType === "expense" ? "active" : ""}
+          type="button"
+          onClick={() => props.setRecordType("expense")}
+        >
           支出
         </button>
-        <button className={props.recordType === "income" ? "active" : ""} type="button" onClick={() => props.setRecordType("income")}>
+        <button
+          className={props.recordType === "income" ? "active" : ""}
+          type="button"
+          onClick={() => props.setRecordType("income")}
+        >
           收入
         </button>
       </div>
       <div className="category-grid">
         {props.categories.map((category) => (
           <button
-            className={props.recordCategoryId === category.id ? "category-chip active" : "category-chip"}
+            className={
+              props.recordCategoryId === category.id
+                ? "category-chip active"
+                : "category-chip"
+            }
             key={category.id}
             type="button"
             onClick={() => props.setRecordCategoryId(category.id)}
@@ -587,19 +735,36 @@ function RecordPage(props: {
         onChange={(event) => props.setAmount(event.target.value)}
         aria-label="金额"
       />
-      <textarea placeholder="备注" value={props.remark} onChange={(event) => props.setRemark(event.target.value)} />
-      <input type="date" value={props.happenedAt} onChange={(event) => props.setHappenedAt(event.target.value)} aria-label="日期" />
+      <textarea
+        placeholder="备注"
+        value={props.remark}
+        onChange={(event) => props.setRemark(event.target.value)}
+      />
+      <input
+        type="date"
+        value={props.happenedAt}
+        onChange={(event) => props.setHappenedAt(event.target.value)}
+        aria-label="日期"
+      />
       <label className="upload-line">
         <Camera aria-hidden="true" size={18} />
         图片凭证
         <input
           type="file"
           accept="image/png,image/jpeg,image/webp"
-          onChange={(event) => props.setVoucherFile(event.target.files?.[0] ?? null)}
+          onChange={(event) =>
+            props.setVoucherFile(event.target.files?.[0] ?? null)
+          }
         />
       </label>
-      {props.voucherFile ? <p className="muted-message">{props.voucherFile.name}</p> : null}
-      <button className="primary-action" type="submit" disabled={props.isSubmitting}>
+      {props.voucherFile ? (
+        <p className="muted-message">{props.voucherFile.name}</p>
+      ) : null}
+      <button
+        className="primary-action"
+        type="submit"
+        disabled={props.isSubmitting}
+      >
         完成
       </button>
     </form>
@@ -629,17 +794,30 @@ function ProfilePage(props: {
           <strong>{props.user.nickname || props.user.username}</strong>
           <p>{props.user.username}</p>
         </div>
-        <button className="icon-button" type="button" aria-label="退出登录" onClick={props.onLogout}>
+        <button
+          className="icon-button"
+          type="button"
+          aria-label="退出登录"
+          onClick={props.onLogout}
+        >
           <LogOut aria-hidden="true" size={20} />
         </button>
       </div>
       <form className="inline-form" onSubmit={props.onCreateBook}>
-        <input value={props.newBookName} placeholder="新账本" onChange={(event) => props.setNewBookName(event.target.value)} />
+        <input
+          value={props.newBookName}
+          placeholder="新账本"
+          onChange={(event) => props.setNewBookName(event.target.value)}
+        />
         <button type="submit">添加</button>
       </form>
       <div className="plain-list">
         {props.books.map((book) => (
-          <button key={book.id} type="button" onClick={() => props.onDeleteBook(book.id)}>
+          <button
+            key={book.id}
+            type="button"
+            onClick={() => props.onDeleteBook(book.id)}
+          >
             {book.name}
           </button>
         ))}
@@ -654,7 +832,12 @@ function ProfilePage(props: {
       </form>
       <div className="plain-list">
         {props.categories.slice(0, 12).map((category) => (
-          <button key={category.id} type="button" disabled={!category.isActive} onClick={() => props.onDisableCategory(category.id)}>
+          <button
+            key={category.id}
+            type="button"
+            disabled={!category.isActive}
+            onClick={() => props.onDisableCategory(category.id)}
+          >
             {category.name}
           </button>
         ))}
@@ -673,6 +856,11 @@ function groupBillsByDate(bills: Bill[]) {
 }
 
 function formatDayTotal(bills: Bill[]) {
-  const total = bills.reduce((sum, bill) => sum + (bill.type === "income" ? Number(bill.amount) : -Number(bill.amount)), 0);
+  const total = bills.reduce(
+    (sum, bill) =>
+      sum +
+      (bill.type === "income" ? Number(bill.amount) : -Number(bill.amount)),
+    0,
+  );
   return total.toFixed(2);
 }

@@ -4,7 +4,7 @@ import type { BillQuery, BillRepository } from "./billRepository.js";
 function serializeBill<T extends { amount: Prisma.Decimal }>(bill: T) {
   return {
     ...bill,
-    amount: bill.amount.toFixed(2)
+    amount: bill.amount.toFixed(2),
   };
 }
 
@@ -32,11 +32,11 @@ export class PrismaBillRepository implements BillRepository {
         happenedAt: range
           ? {
               gte: range.start,
-              lt: range.end
+              lt: range.end,
             }
-          : undefined
+          : undefined,
       },
-      orderBy: { happenedAt: "desc" }
+      orderBy: { happenedAt: "desc" },
     });
 
     return bills.map(serializeBill);
@@ -44,7 +44,7 @@ export class PrismaBillRepository implements BillRepository {
 
   async findBillById(billId: string) {
     const bill = await this.prisma.bill.findUnique({
-      where: { id: billId }
+      where: { id: billId },
     });
 
     return bill ? serializeBill(bill) : null;
@@ -69,8 +69,8 @@ export class PrismaBillRepository implements BillRepository {
         amount: new Prisma.Decimal(input.amount),
         remark: input.remark,
         imageUrl: input.imageUrl,
-        happenedAt: input.happenedAt
-      }
+        happenedAt: input.happenedAt,
+      },
     });
 
     return serializeBill(bill);
@@ -92,11 +92,14 @@ export class PrismaBillRepository implements BillRepository {
         bookId: input.bookId,
         categoryId: input.categoryId,
         type: input.type,
-        amount: input.amount === undefined ? undefined : new Prisma.Decimal(input.amount),
+        amount:
+          input.amount === undefined
+            ? undefined
+            : new Prisma.Decimal(input.amount),
         remark: input.remark,
         imageUrl: input.imageUrl,
-        happenedAt: input.happenedAt
-      }
+        happenedAt: input.happenedAt,
+      },
     });
 
     return serializeBill(bill);
@@ -104,7 +107,7 @@ export class PrismaBillRepository implements BillRepository {
 
   async deleteBill(billId: string) {
     await this.prisma.bill.delete({
-      where: { id: billId }
+      where: { id: billId },
     });
   }
 }
