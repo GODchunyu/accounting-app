@@ -25,6 +25,7 @@ pnpm-debug.log*
 # Runtime uploads
 /uploads/
 apps/api/uploads/
+backups/
 
 # OS / editor
 .DS_Store

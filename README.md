@@ -101,6 +101,13 @@ Docker 冒烟：
 pnpm verify:docker
 ```
 
+数据库备份：
+
+```bash
+pnpm db:backup
+pnpm db:restore -- backups/<backup-file>.dump
+```
+
 ## 当前能力
 
 - 后端：认证、账本、分类、账单、图片上传、月度统计、分类排行、统一错误响应。

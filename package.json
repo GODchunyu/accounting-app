@@ -18,7 +18,9 @@
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "db:generate": "pnpm --filter @accounting-app/api db:generate",
-    "db:migrate": "pnpm --filter @accounting-app/api db:migrate"
+    "db:migrate": "pnpm --filter @accounting-app/api db:migrate",
+    "db:backup": "node scripts/db-backup.mjs",
+    "db:restore": "node scripts/db-restore.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",

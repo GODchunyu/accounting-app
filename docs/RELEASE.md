@@ -101,9 +101,20 @@ docker compose up -d --build --wait api
 
 数据恢复：
 
-- 当前仓库不包含自动数据库备份脚本。
-- 正式上线前应由部署环境提供 PostgreSQL 备份策略。
+- 备份当前数据库：
+
+```bash
+pnpm db:backup
+```
+
+- 从备份恢复数据库：
+
+```bash
+pnpm db:restore -- backups/<backup-file>.dump
+```
+
 - 回滚前不要删除 `postgres_data` 或 `uploads_data` volume，除非明确要清空数据。
+- 恢复会覆盖当前数据库对象；正式生产环境建议先复制备份文件并确认维护窗口。
 
 ## 7. 当前已知限制
 
